@@ -1,25 +1,31 @@
 
 
 
-;(function () {
+//;(function () {
 	function main() {
 		window.requestAnimationFrame(main);
 
 		drawMap(game.levelState);
 
 		if (game.player.falling) {
-			drawHero(3, 0, 40, 50, game.player.position.x, game.player.position.y);
-			game.player.position.y += 1/40;
-			console.log(Math.floor(game.player.position.y))
 
-			var blockY = Math.floor(game.player.position.y);
+			drawHero(3, 0.2, 40, 40, game.player.position.x, game.player.position.y);
+			game.player.position.y += 1/20;
 
-			if (game.levelState) {
+			//var leftFootX = Math.floor(game.player.position.x);
+			var rightFootX = Math.ceil(game.player.position.x);
+			var footY = Math.ceil(game.player.position.y);
 
+			var block = game.levelState[footY][rightFootX];
+
+			if (block != 0 && block != 3 && block != 4) {
+				game.player.falling = false;
+				game.player.position.y = footY - 1;
 			}
 
 		} else {
-			drawHero(0, 0, game.player.position.x, game.player.position.y);
+			drawHero(0, 0, 40, 40, game.player.position.x, game.player.position.y);
+			console.log(game.player.position.y)
 		}
 
 		
@@ -65,18 +71,18 @@
 	}
 
 	var levels = {
-		1:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,2,2,0,2,0,0,0,0,0,0,
-			0,0,0,0,1,1,2,4,0,2,1,1,0,0,0,0,
-			0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,
-			0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,
-			0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0,
-			0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		1: [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,2,2,0,2,0,0,0,0,0,0],
+			[0,0,0,0,1,1,2,4,0,2,1,1,0,0,0,0],
+			[0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0],
+			[0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0],
+			[0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0],
+			[0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 	}
 
 	var game = {
@@ -97,8 +103,6 @@
 	}
 
 	function drawHero(tileX, tileY, sX, sY, desX, desY) {
-		if (!sX) {sX = 40}
-		if (!sY) {sY = 40}
 		ctx.drawImage(playerSprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 	}
 
@@ -106,23 +110,21 @@
 
 		var i = 0, j = 0;
 
-		for (i = 0; i < 16 * 12; i++) {
-			
-			var mapCode = map[i];
+		for (i = 0; i < 12; i++) {
+			for (j = 0; j < 16; j++) {
+				
+				var mapCode = map[i][j];
 
-			var tileX = mapCodes[mapCode].spriteX;
-			var tileY = mapCodes[mapCode].spriteY;
+				var tileX = mapCodes[mapCode].spriteX;
+				var tileY = mapCodes[mapCode].spriteY;
 
-			if (i % 16 == 0 && i != 0) {
-				j++;
-			}
+				drawTile(tileX, tileY, j, i);
 
-			drawTile(tileX, tileY, i % 16, j);
-
-			if (mapCode == 3) { // Entrance Portal
-				var startingPosition =  {
-					x: i % 16,
-					y: j
+				if (mapCode == 3) { // Entrance Portal
+					var startingPosition = {
+						x: j,
+						y: i
+					}
 				}
 			}
 		}
@@ -151,6 +153,6 @@
 		}
 	}
 
-})();
+//})();
 
 
