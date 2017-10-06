@@ -3,34 +3,60 @@
 
 //;(function () {
 	function main() {
-		window.requestAnimationFrame(main);
 
 		drawMap(game.levelState);
 
-		if (game.player.falling) {
+		if (game.player.state == "standing") {
 
-			drawHero(3, 0.2, 40, 40, game.player.position.x, game.player.position.y);
-			game.player.position.y += 1/20;
+			console.log(getTileBelow().blocking)
 
-			//var leftFootX = Math.floor(game.player.position.x);
-			var rightFootX = Math.ceil(game.player.position.x);
-			var footY = Math.ceil(game.player.position.y);
 
-			var block = game.levelState[footY][rightFootX];
+			if (getTileBelow().blocking) {
+				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+			} else {
+				playerFall();
+				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffet.y);
+			}
+		} else if (game.player.state == "falling") {
 
-			if (block != 0 && block != 3 && block != 4) {
-				game.player.falling = false;
-				game.player.position.y = footY - 1;
+			 /* Can change direction mid-air */
+			 if (game.keysDown.A) {
+			 	game.player.direction = "left";
+			 } else if (game.keysDown.D) {
+			 	game.player.direction = "right";
+			 }
+			
+			game.player.animationStep++;
+
+			game.player.animationOffet.y = game.player.animationStep * 1/25;
+
+			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffet.y);
+
+			// Gone down a square; switch based on where we are
+			if (game.player.animationStep == 25) {
+
+				game.player.animationStep = 0;
+				game.player.animationOffet.y = 0;
+				game.player.pos.y++;
+
+				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffet.y);
+				
+				if (game.player.pos.y > 11) {
+					//Play(SND_FALL, FALSE, TRUE);
+					console.log("dead"); //pStep = 0; PlayerErase();
+				// } else if(map[px][py].id == TL_WARP) {
+				// 	//Play(SND_WARP, FALSE, TRUE);
+				// 	pStep = 0; PlayerErase();
+				} else {
+					playerStand();
+				}
 			}
 
 		} else {
-			drawHero(0, 0, 40, 40, game.player.position.x, game.player.position.y);
-			console.log(game.player.position.y)
+			drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 		}
 
-		
-		
-		
+		window.requestAnimationFrame(main);
 	}
 
 	var canvas = document.getElementById("game");
@@ -89,12 +115,48 @@
 		level: 1,
 		levelState: [],
 		player: {
-			position: {
+			pos: {
 				x: 0,
 				y: 0
 			},
-			falling: true
+			direction: "right",
+			state: "standing",
+			animationStep: 0,
+			animationOffet: {
+				x: 0,
+				y: 0,
+			}
+		},
+		keysDown: {
+			W: false,
+			A: false,
+			S: false, 
+			D: false
 		}
+	}
+
+	function playerFall() {
+		game.player.state = "falling";
+	}
+
+	function playerStand() {
+		game.player.state = "standing";
+	}
+
+	function playerWalkLeft() {
+		game.player.state = "walkLeft";
+	}
+
+	function playerWalkRight() {
+		game.player.state = "walkRight";
+	}
+
+	function getCurrentTile() {
+		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
+	}
+
+	function getTileBelow() {
+		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x]];
 	}
 
 	function drawTile(tileX, tileY, desX, desY) {
@@ -103,7 +165,12 @@
 	}
 
 	function drawHero(tileX, tileY, sX, sY, desX, desY) {
-		ctx.drawImage(playerSprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+		if (game.player.direction == "right") {
+			ctx.drawImage(playerSprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+		} else {
+			ctx.drawImage(playerSprite, (11 - tileX) * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+		}
+		
 	}
 
 	function drawMap(map) {
@@ -121,7 +188,7 @@
 				drawTile(tileX, tileY, j, i);
 
 				if (mapCode == 3) { // Entrance Portal
-					var startingPosition = {
+					var startingPos = {
 						x: j,
 						y: i
 					}
@@ -129,7 +196,7 @@
 			}
 		}
 
-		return startingPosition;
+		return startingPos;
 
 	}
   	
@@ -147,11 +214,43 @@
 	playerSprite.onload = function() {
 		playerLoaded = true;
 		if (spriteLoaded) {
-			game.player.position = drawMap(levels[game.level]);
+			game.player.pos = drawMap(levels[game.level]);
 			game.levelState = levels[game.level].slice(0, levels[game.level].length);
 			main();
 		}
 	}
+
+	window.addEventListener("keydown", function(e) {
+
+		switch(e.keyCode) {
+			case 65: // A
+				if (game.player.state == "standing") {
+					playerWalkLeft();
+				}
+				game.keysDown.A = true;
+				break;
+			case 68: // D
+				if (game.player.state == "standing") {
+					playerWalkRight();	
+				}
+				game.keysDown.D = true;
+				break;
+		}
+
+	}, true);
+
+	window.addEventListener("keyup", function(e) {
+
+		switch(e.keyCode) {
+			case 65: // A
+				game.keysDown.A = false;
+				break;
+			case 68:
+				game.keysDown.D = false;
+				break;
+		}
+
+	}, true);
 
 //})();
 
