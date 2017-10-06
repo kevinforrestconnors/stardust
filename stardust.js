@@ -224,13 +224,13 @@
 
 		switch(e.keyCode) {
 			case 65: // A
-				if (game.player.state == "standing") {
+				if (game.player.state == "standing" && getTileBelow().blocking) {
 					playerWalkLeft();
 				}
 				game.keysDown.A = true;
 				break;
 			case 68: // D
-				if (game.player.state == "standing") {
+				if (game.player.state == "standing" && getTileBelow().blocking) {
 					playerWalkRight();	
 				}
 				game.keysDown.D = true;
