@@ -136,7 +136,7 @@
 			name: "Exit Portal",
 			spriteX: 3,
 			spriteY: 10,
-			blocking: true
+			blocking: false
 		},
 	}
 
@@ -284,12 +284,14 @@
 	window.addEventListener("keydown", function(e) {
 
 		switch(e.keyCode) {
+			case 37:
 			case 65: // A
 				if (game.player.state == "standing" && getTileBelow().blocking && !getTileLeft().blocking) {
 					playerWalkLeft();
 				}
 				game.keysDown.A = true;
 				break;
+			case 39:
 			case 68: // D
 				if (game.player.state == "standing" && getTileBelow().blocking && !getTileRight().blocking) {
 					playerWalkRight();	
@@ -303,9 +305,11 @@
 	window.addEventListener("keyup", function(e) {
 
 		switch(e.keyCode) {
+			case 37:
 			case 65: // A
 				game.keysDown.A = false;
 				break;
+			case 39:
 			case 68:
 				game.keysDown.D = false;
 				break;
