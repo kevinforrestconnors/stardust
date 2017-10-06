@@ -8,16 +8,17 @@
 
 		if (game.player.state == "standing") {
 
-			console.log(getTileBelow().blocking)
-
-
 			if (getTileBelow().blocking) {
 				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 			} else {
 				playerFall();
-				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffet.y);
+				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
 			}
 		} else if (game.player.state == "falling") {
+
+			if (getCurrentTile().blocking) {
+				console.error("This shouldn't happen!")
+			}
 
 			 /* Can change direction mid-air */
 			 if (game.keysDown.A) {
@@ -28,18 +29,18 @@
 			
 			game.player.animationStep++;
 
-			game.player.animationOffet.y = game.player.animationStep * 1/25;
+			game.player.animationOffset.y = game.player.animationStep * 1/25;
 
-			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffet.y);
+			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
 
 			// Gone down a square; switch based on where we are
 			if (game.player.animationStep == 25) {
 
 				game.player.animationStep = 0;
-				game.player.animationOffet.y = 0;
+				game.player.animationOffset.y = 0;
 				game.player.pos.y++;
 
-				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffet.y);
+				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
 				
 				if (game.player.pos.y > 11) {
 					//Play(SND_FALL, FALSE, TRUE);
@@ -52,8 +53,51 @@
 				}
 			}
 
-		} else {
-			drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+		} else if (game.player.state == "walkRight") {
+
+			game.player.animationStep++;
+
+			game.player.animationOffset.x = game.player.animationStep * 1/20;
+
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x + game.player.animationOffset.x, game.player.pos.y);
+
+			if (game.player.animationStep == 20) {
+				game.player.animationStep = 0;
+				game.player.animationOffset.x = 0;
+				game.player.pos.x++;
+
+				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (getTileBelow().blocking) {
+					playerStand();
+				} else {
+					playerFall();
+				}
+				
+			}
+
+		} else if (game.player.state == "walkLeft") {
+
+			game.player.animationStep++;
+			game.player.animationOffset.x = game.player.animationStep * 1/20;
+		
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x - game.player.animationOffset.x, game.player.pos.y);
+
+			if (game.player.animationStep == 20) {
+				game.player.animationStep = 0;
+				game.player.animationOffset.x = 0;
+				game.player.pos.x--;
+
+				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (getTileBelow().blocking) {
+					playerStand();
+				} else {
+					playerFall();
+				}
+				
+			}
+
 		}
 
 		window.requestAnimationFrame(main);
@@ -122,7 +166,7 @@
 			direction: "right",
 			state: "standing",
 			animationStep: 0,
-			animationOffet: {
+			animationOffset: {
 				x: 0,
 				y: 0,
 			}
@@ -136,18 +180,23 @@
 	}
 
 	function playerFall() {
+		console.log("Player begins falling")
 		game.player.state = "falling";
 	}
 
 	function playerStand() {
+		console.log("Player begins standing")
 		game.player.state = "standing";
 	}
 
 	function playerWalkLeft() {
+		game.player.direction = "left";
 		game.player.state = "walkLeft";
 	}
 
 	function playerWalkRight() {
+		console.log("Player begins walking right")
+		game.player.direction = "right";
 		game.player.state = "walkRight";
 	}
 
@@ -157,6 +206,18 @@
 
 	function getTileBelow() {
 		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x]];
+	}
+
+	function getTileAbove() {
+		return mapCodes[game.levelState[game.player.pos.y - 1][game.player.pos.x]];
+	}
+
+	function getTileLeft() {
+		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x - 1]];
+	}
+
+	function getTileRight() {
+		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x + 1]];
 	}
 
 	function drawTile(tileX, tileY, desX, desY) {
@@ -224,13 +285,13 @@
 
 		switch(e.keyCode) {
 			case 65: // A
-				if (game.player.state == "standing" && getTileBelow().blocking) {
+				if (game.player.state == "standing" && getTileBelow().blocking && !getTileLeft().blocking) {
 					playerWalkLeft();
 				}
 				game.keysDown.A = true;
 				break;
 			case 68: // D
-				if (game.player.state == "standing" && getTileBelow().blocking) {
+				if (game.player.state == "standing" && getTileBelow().blocking && !getTileRight().blocking) {
 					playerWalkRight();	
 				}
 				game.keysDown.D = true;
