@@ -29,12 +29,12 @@
 			
 			game.player.animationStep++;
 
-			game.player.animationOffset.y = game.player.animationStep * 1/25;
+			game.player.animationOffset.y = game.player.animationStep * 1/20;
 
 			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
 
 			// Gone down a square; switch based on where we are
-			if (game.player.animationStep == 25) {
+			if (game.player.animationStep == 20) {
 
 				game.player.animationStep = 0;
 				game.player.animationOffset.y = 0;
@@ -96,6 +96,18 @@
 					playerFall();
 				}
 				
+			}
+
+		} else if (game.player.state == "crouching") {
+
+			game.player.animationStep++;
+
+			if (game.player.animationStep >= 1 && game.player.animationStep <= 5) { // Player has just entered crouch
+				drawHero(2, 6, 40, 40, game.player.pos.x, game.player.pos.y);
+			} else if (game.player.animationStep >= 6 && game.player.animationStep <= 10) {
+				drawHero(2, 7, 40, 40, game.player.pos.x, game.player.pos.y);
+			} else {
+				drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
 			}
 
 		}
@@ -190,6 +202,7 @@
 	}
 
 	function playerWalkLeft() {
+		console.log("Player begins walking left")
 		game.player.direction = "left";
 		game.player.state = "walkLeft";
 	}
@@ -198,6 +211,11 @@
 		console.log("Player begins walking right")
 		game.player.direction = "right";
 		game.player.state = "walkRight";
+	}
+
+	function playerCrouch() {
+		console.log("Player enters crouch");
+		game.player.state = "crouching"
 	}
 
 	function getCurrentTile() {
@@ -284,19 +302,26 @@
 	window.addEventListener("keydown", function(e) {
 
 		switch(e.keyCode) {
-			case 37:
+			case 37: // Left Arrow
 			case 65: // A
 				if (game.player.state == "standing" && getTileBelow().blocking && !getTileLeft().blocking) {
 					playerWalkLeft();
 				}
 				game.keysDown.A = true;
 				break;
-			case 39:
+			case 39: // Right Arrow
 			case 68: // D
 				if (game.player.state == "standing" && getTileBelow().blocking && !getTileRight().blocking) {
 					playerWalkRight();	
 				}
 				game.keysDown.D = true;
+				break;
+			case 40: // Down Arrow
+			case 83: // S
+				if (game.player.state == "standing") {
+					playerCrouch();
+				}
+				game.keysDown.S = true;
 				break;
 		}
 
@@ -305,13 +330,21 @@
 	window.addEventListener("keyup", function(e) {
 
 		switch(e.keyCode) {
-			case 37:
+			case 37: // Left Arrow
 			case 65: // A
 				game.keysDown.A = false;
 				break;
 			case 39:
 			case 68:
 				game.keysDown.D = false;
+				break;
+			case 40: // Down Arrow
+			case 83: // S
+				if (game.player.state == "crouching") {
+					game.player.animationStep = 0;
+					playerStand();
+				}
+				game.keysDown.S = false;
 				break;
 		}
 
