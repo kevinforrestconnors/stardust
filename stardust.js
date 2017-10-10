@@ -17,9 +17,52 @@ var GLOBALS = {
 
 		drawMap(game.levelState);
 
+		if (game.keysDown.Space) {
+			if (game.player.state == "standing") {
+
+				if (game.keysDown.W && !getTileAbove().blocking) {
+					playerMagicUp()
+				}
+				else if (game.player.direction == "left") {
+					playerMagicLeft();
+				} else {
+					playerMagicRight();
+				}
+
+			} else if (game.player.state == "crouching" && game.player.animationStep > 10) {
+
+				if (game.player.direction == "left") {
+					playerCrouchMagicLeft();
+				} else {
+					playerCrouchMagicRight();
+				}
+
+			}
+		} 
+
+		if (game.keysDown.A) {
+			playerWalkLeft();
+		}
+
+		if (game.keysDown.D) {
+			playerWalkRight();	
+		} 
+
+		if (game.keysDown.S) {
+			if (game.player.state == "standing") {
+				playerCrouch();
+			}
+		} else {
+			if (game.player.state == "crouching") {
+				playerStand();
+			}
+		}
+
+
 		if (game.player.state == "standing") {
 
 			if (getTileBelow().blocking) {
+				playerStand();
 				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 			} else {
 				playerFall();
@@ -194,6 +237,74 @@ var GLOBALS = {
 					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "B";
 					playerStand();
+					
+				}		
+			}
+
+		} else if (game.player.state == "crouchMagicRight") {
+
+			if (getTileBottomRight().eraseable) {
+
+				game.player.animationStep++;
+				game.player.animationOffset = game.player.animationStep / 20;
+ 
+				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+
+					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + 1] = "0";
+					playerCrouch();		
+
+				}
+
+			} else {
+
+				game.player.animationStep++;
+				game.player.animationOffset = game.player.animationStep / 20;
+				
+				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + 1, game.player.pos.y + 1);
+				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+
+					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + 1] = "B";
+					playerCrouch();
+					
+				}		
+			}
+
+		} else if (game.player.state == "crouchMagicLeft") {
+
+			if (getTileBottomLeft().eraseable) {
+
+				game.player.animationStep++;
+				game.player.animationOffset = game.player.animationStep / 20;
+ 
+				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+
+					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "0";
+					playerCrouch();		
+
+				}
+
+			} else {
+
+				game.player.animationStep++;
+				game.player.animationOffset = game.player.animationStep / 20;
+				
+				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x - 1, game.player.pos.y + 1);
+				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+
+					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "B";
+					playerCrouch();
 					
 				}		
 			}
@@ -375,21 +486,31 @@ var GLOBALS = {
 	}
 	function playerMagicLeft() {
 		console.log("playerMagicLeft()")
-		if (!getTileLeft().blocking || getTileLeft().name == "Blue Magic" || getTileLeft().name == "Green Magic") {
+		if (!getTileLeft().blocking || getTileLeft().eraseable) {
 			game.player.state = "magicLeft";
 		}
 	}
 	function playerMagicRight() {
 		console.log("playerMagicRight()");
-		if (!getTileRight().blocking || getTileRight().name == "Blue Magic" || getTileRight().name == "Green Magic") {
+		if (!getTileRight().blocking || getTileRight().eraseable) {
 			game.player.state = "magicRight";
 		}
 	}
 	function playerCrouchMagicLeft() {
 		console.log("playerCrouchMagicLeft()")
+		if (!getTileBottomLeft().blocking || getTileBottomLeft().eraseable) {
+			game.player.animationStep = 0;
+			game.player.animationOffset = 0;
+			game.player.state = "crouchMagicLeft";
+		}
 	}
 	function playerCrouchMagicRight() {
 		console.log("playerCrouchMagicRight()")
+		if (!getTileBottomRight().blocking || getTileBottomRight().eraseable) {
+			game.player.animationStep = 0;
+			game.player.animationOffset = 0;
+			game.player.state = "crouchMagicRight";
+		}
 	}
 	function playerMagicUp() {
 		console.log("playerMagicUp()");
@@ -413,7 +534,7 @@ var GLOBALS = {
 		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x - 1]];
 	}
 	function getTileBottomRight() {
-		mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
+		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
 	}
 	function drawTile(tileX, tileY, desX, desY) {
 		var spriteSize = 40;
@@ -484,14 +605,13 @@ var GLOBALS = {
 
 					if (game.keysDown.W && !getTileAbove().blocking) {
 						playerMagicUp()
-					}
-					else if (game.player.direction == "left") {
+					} else if (game.player.direction == "left") {
 						playerMagicLeft();
 					} else {
 						playerMagicRight();
 					}
 
-				} else if (game.player.state == "crouching") {
+				} else if (game.player.state == "crouching" && game.player.animationStep > 10) {
 
 					if (game.player.direction == "left") {
 						playerCrouchMagicLeft();
