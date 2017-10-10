@@ -23,7 +23,7 @@ var GLOBALS = {
 				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 			} else {
 				playerFall();
-				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
+				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 			}
 
 		} else if (game.player.state == "falling") {
@@ -41,18 +41,18 @@ var GLOBALS = {
 			
 			game.player.animationStep++;
 
-			game.player.animationOffset.y = game.player.animationStep / 20;
+			game.player.animationOffset = game.player.animationStep / 20;
 
-			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
+			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 
 			// Gone down a square; switch based on where we are
 			if (game.player.animationStep == GLOBALS.fallDuration) {
 
 				game.player.animationStep = 0;
-				game.player.animationOffset.y = 0;
+				game.player.animationOffset = 0;
 				game.player.pos.y++;
 
-				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
+				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
 				if (game.player.pos.y > 11) {
 					//Play(SND_FALL, FALSE, TRUE);
@@ -69,13 +69,13 @@ var GLOBALS = {
 
 			game.player.animationStep++;
 
-			game.player.animationOffset.x = game.player.animationStep / GLOBALS.walkDuration;
+			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x + game.player.animationOffset.x, game.player.pos.y);
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x + game.player.animationOffset, game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
-				game.player.animationOffset.x = 0;
+				game.player.animationOffset = 0;
 				game.player.pos.x++;
 
 				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
@@ -91,13 +91,13 @@ var GLOBALS = {
 		} else if (game.player.state == "walkLeft") {
 
 			game.player.animationStep++;
-			game.player.animationOffset.x = game.player.animationStep / GLOBALS.walkDuration;
+			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 		
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x - game.player.animationOffset.x, game.player.pos.y);
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
-				game.player.animationOffset.x = 0;
+				game.player.animationOffset = 0;
 				game.player.pos.x--;
 
 				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
@@ -124,36 +124,34 @@ var GLOBALS = {
 
 		} else if (game.player.state == "magicRight") {
 
-			if (getTileRight().name == "Blue Magic") {
+			if (getTileRight().eraseable) {
 
 				game.player.animationStep++;
-				game.player.animationOffset.x = game.player.animationStep / 20;
+				game.player.animationOffset = game.player.animationStep / 20;
 
-				drawTile(2 , 0, game.player.pos.x + 1, game.player.pos.y)
 				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
-					game.player.animationOffset.x = 0;
+					game.player.animationOffset = 0;
 
 					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + 1] = "0";
 					playerStand();
 					
 				}
-			} else if (getTileRight().name == "Green Magic") {
 
 			} else {
 
 				game.player.animationStep++;
-				game.player.animationOffset.x = game.player.animationStep / 20;
+				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2 - game.player.animationOffset.x, 10, game.player.pos.x + 1, game.player.pos.y);
+				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + 1, game.player.pos.y);
 				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
-					game.player.animationOffset.x = 0;
+					game.player.animationOffset = 0;
 
 					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + 1] = "B";
@@ -164,36 +162,34 @@ var GLOBALS = {
 
 		} else if (game.player.state == "magicLeft") {
 
-			if (getTileLeft().name == "Blue Magic") {
+			if (getTileLeft().eraseable) {
 
 				game.player.animationStep++;
-				game.player.animationOffset.x = game.player.animationStep / 20;
-
-				drawTile(2, 0, game.player.pos.x - 1, game.player.pos.y);
+				game.player.animationOffset = game.player.animationStep / 20;
+ 
 				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
-					game.player.animationOffset.x = 0;
+					game.player.animationOffset = 0;
 
 					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "0";
 					playerStand();
 					
 				}
-			} else if (getTileLeft().name == "Green Magic") {
 
 			} else {
 
 				game.player.animationStep++;
-				game.player.animationOffset.x = game.player.animationStep / 20;
+				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(game.player.animationOffset.x, 0, game.player.pos.x - 1, game.player.pos.y)
+				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x - 1, game.player.pos.y);
 				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
-					game.player.animationOffset.x = 0;
+					game.player.animationOffset = 0;
 
 					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "B";
@@ -216,37 +212,43 @@ var GLOBALS = {
 			name: "Empty Space",
 			spriteX: 0,
 			spriteY: 0,
-			blocking: false
+			blocking: false,
+			eraseable: false,
 		},
 		"1": {
 			name: "Eraseable Star-wall",
 			spriteX: 2,
 			spriteY: 1,
-			blocking: true
+			blocking: true,
+			eraseable: true,
 		},
 		"2": {
 			name: "Indestructible Star-wall",
 			spriteX: 1,
 			spriteY: 1,
-			blocking: true
+			blocking: true,
+			eraseable: false,
 		},
 		"3": {
 			name: "Entrance Portal",
 			spriteX: 3,
 			spriteY: 9,
-			blocking: false
+			blocking: false,
+			eraseable: false,
 		},
 		"4": {
 			name: "Exit Portal",
 			spriteX: 3,
 			spriteY: 10,
-			blocking: false
+			blocking: false,
+			eraseable: false,
 		},
 		"5": {
 			name: "Warp Pocket",
 			spriteX: "?",
 			spriteY: "?",
 			blocking: false,
+			eraseable: false,
 		},
 		"6": {
 
@@ -260,14 +262,16 @@ var GLOBALS = {
 		"B": {
 			name: "Blue Magic",
 			spriteX: 2,
-			spriteY: 0,
-			blocking: true
+			spriteY: 6,
+			blocking: true,
+			eraseable: true
 		},
 		"G": {
 			name: "Green Magic",
 			spriteX: 3,
 			spriteY: 3,
-			blocking: true
+			blocking: true,
+			eraseable: true,
 		},
 		"!": {
 
@@ -318,12 +322,10 @@ var GLOBALS = {
 			direction: "right",
 			state: "standing",
 			animationStep: 0,
-			animationOffset: {
-				x: 0,
-				y: 0,
-			}
+			animationOffset: 0
 		},
 		keysDown: {
+			Space: false,
 			W: false,
 			A: false,
 			S: false, 
@@ -340,6 +342,7 @@ var GLOBALS = {
 		console.log("playerStand()")
 		game.player.state = "standing";
 		game.player.animationStep = 0;
+		game.player.animationOffset = 0;
 	}
 
 	function playerWalkLeft() {
@@ -405,6 +408,12 @@ var GLOBALS = {
 	}
 	function getTileRight() {
 		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x + 1]];
+	}
+	function getTileBottomLeft() {
+		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x - 1]];
+	}
+	function getTileBottomRight() {
+		mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
 	}
 	function drawTile(tileX, tileY, desX, desY) {
 		var spriteSize = 40;
