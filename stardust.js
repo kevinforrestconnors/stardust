@@ -1,4 +1,15 @@
 
+var GLOBALS = {
+	XYHEROwidth: 12,
+	XYHEROheight: 9,
+	
+	XYTILESwidth: 6,
+	XYTILESheight: 11,
+
+	walkDuration: 20,
+	fallDuration: 20,
+	magicDuration: 40,
+} 
 
 
 //;(function () {
@@ -14,6 +25,7 @@
 				playerFall();
 				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
 			}
+
 		} else if (game.player.state == "falling") {
 
 			if (getCurrentTile().blocking) {
@@ -29,12 +41,12 @@
 			
 			game.player.animationStep++;
 
-			game.player.animationOffset.y = game.player.animationStep * 1/20;
+			game.player.animationOffset.y = game.player.animationStep / 20;
 
 			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset.y);
 
 			// Gone down a square; switch based on where we are
-			if (game.player.animationStep == 20) {
+			if (game.player.animationStep == GLOBALS.fallDuration) {
 
 				game.player.animationStep = 0;
 				game.player.animationOffset.y = 0;
@@ -57,11 +69,11 @@
 
 			game.player.animationStep++;
 
-			game.player.animationOffset.x = game.player.animationStep * 1/20;
+			game.player.animationOffset.x = game.player.animationStep / GLOBALS.walkDuration;
 
 			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x + game.player.animationOffset.x, game.player.pos.y);
 
-			if (game.player.animationStep == 20) {
+			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset.x = 0;
 				game.player.pos.x++;
@@ -79,11 +91,11 @@
 		} else if (game.player.state == "walkLeft") {
 
 			game.player.animationStep++;
-			game.player.animationOffset.x = game.player.animationStep * 1/20;
+			game.player.animationOffset.x = game.player.animationStep / GLOBALS.walkDuration;
 		
 			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x - game.player.animationOffset.x, game.player.pos.y);
 
-			if (game.player.animationStep == 20) {
+			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset.x = 0;
 				game.player.pos.x--;
@@ -110,6 +122,86 @@
 				drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
 			}
 
+		} else if (game.player.state == "magicRight") {
+
+			if (getTileRight().name == "Blue Magic") {
+
+				game.player.animationStep++;
+				game.player.animationOffset.x = game.player.animationStep / 20;
+
+				drawTile(2 , 0, game.player.pos.x + 1, game.player.pos.y)
+				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+					game.player.animationStep = 0;
+					game.player.animationOffset.x = 0;
+
+					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y][game.player.pos.x + 1] = "0";
+					playerStand();
+					
+				}
+			} else if (getTileRight().name == "Green Magic") {
+
+			} else {
+
+				game.player.animationStep++;
+				game.player.animationOffset.x = game.player.animationStep / 20;
+				
+				drawTile(2 - game.player.animationOffset.x, 10, game.player.pos.x + 1, game.player.pos.y);
+				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+					game.player.animationStep = 0;
+					game.player.animationOffset.x = 0;
+
+					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y][game.player.pos.x + 1] = "B";
+					playerStand();
+					
+				}		
+			}
+
+		} else if (game.player.state == "magicLeft") {
+
+			if (getTileLeft().name == "Blue Magic") {
+
+				game.player.animationStep++;
+				game.player.animationOffset.x = game.player.animationStep / 20;
+
+				drawTile(2, 0, game.player.pos.x - 1, game.player.pos.y);
+				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+					game.player.animationStep = 0;
+					game.player.animationOffset.x = 0;
+
+					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "0";
+					playerStand();
+					
+				}
+			} else if (getTileLeft().name == "Green Magic") {
+
+			} else {
+
+				game.player.animationStep++;
+				game.player.animationOffset.x = game.player.animationStep / 20;
+				
+				drawTile(game.player.animationOffset.x, 0, game.player.pos.x - 1, game.player.pos.y)
+				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+
+				if (game.player.animationStep == GLOBALS.magicDuration) {
+					game.player.animationStep = 0;
+					game.player.animationOffset.x = 0;
+
+					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "B";
+					playerStand();
+					
+				}		
+			}
+
 		}
 
 		window.requestAnimationFrame(main);
@@ -120,36 +212,84 @@
 
 
 	var mapCodes = {
-		0: {
+		"0": {
 			name: "Empty Space",
 			spriteX: 0,
 			spriteY: 0,
 			blocking: false
 		},
-		1: {
+		"1": {
 			name: "Eraseable Star-wall",
 			spriteX: 2,
 			spriteY: 1,
 			blocking: true
 		},
-		2: {
+		"2": {
 			name: "Indestructible Star-wall",
 			spriteX: 1,
 			spriteY: 1,
 			blocking: true
 		},
-		3: {
+		"3": {
 			name: "Entrance Portal",
 			spriteX: 3,
 			spriteY: 9,
 			blocking: false
 		},
-		4: {
+		"4": {
 			name: "Exit Portal",
 			spriteX: 3,
 			spriteY: 10,
 			blocking: false
 		},
+		"5": {
+			name: "Warp Pocket",
+			spriteX: "?",
+			spriteY: "?",
+			blocking: false,
+		},
+		"6": {
+
+		},
+		"7": {
+
+		},
+		"8": {
+
+		},
+		"B": {
+			name: "Blue Magic",
+			spriteX: 2,
+			spriteY: 0,
+			blocking: true
+		},
+		"G": {
+			name: "Green Magic",
+			spriteX: 3,
+			spriteY: 3,
+			blocking: true
+		},
+		"!": {
+
+		},
+		"@": {
+
+		},
+		"#": {
+
+		}, 
+		"$": {
+
+		},
+		"(": {
+
+		},
+		")": {
+
+		},
+		"%": {
+
+		}
 	}
 
 	var levels = {
@@ -192,52 +332,80 @@
 	}
 
 	function playerFall() {
-		console.log("Player begins falling")
+		console.log("playerFall()")
 		game.player.state = "falling";
 	}
 
 	function playerStand() {
-		console.log("Player begins standing")
+		console.log("playerStand()")
 		game.player.state = "standing";
+		game.player.animationStep = 0;
 	}
 
 	function playerWalkLeft() {
-		console.log("Player begins walking left")
-		game.player.direction = "left";
-		game.player.state = "walkLeft";
+		console.log("playerWalkLeft()")
+		if (game.player.state == "standing") {
+
+			game.player.direction = "left";	
+
+			if (getTileBelow().blocking && !getTileLeft().blocking) {
+				game.player.state = "walkLeft"; 
+			}
+		}
 	}
 
 	function playerWalkRight() {
-		console.log("Player begins walking right")
-		game.player.direction = "right";
-		game.player.state = "walkRight";
+		console.log("playerWalkRight()")
+		if (game.player.state == "standing") {
+
+			game.player.direction = "right";
+
+			if (getTileBelow().blocking && !getTileRight().blocking) {
+				game.player.state = "walkRight";		
+			}
+		}
 	}
 
 	function playerCrouch() {
-		console.log("Player enters crouch");
+		console.log("playerCrouch()");
 		game.player.state = "crouching"
 	}
-
+	function playerMagicLeft() {
+		console.log("playerMagicLeft()")
+		if (!getTileLeft().blocking || getTileLeft().name == "Blue Magic" || getTileLeft().name == "Green Magic") {
+			game.player.state = "magicLeft";
+		}
+	}
+	function playerMagicRight() {
+		console.log("playerMagicRight()");
+		if (!getTileRight().blocking || getTileRight().name == "Blue Magic" || getTileRight().name == "Green Magic") {
+			game.player.state = "magicRight";
+		}
+	}
+	function playerCrouchMagicLeft() {
+		console.log("playerCrouchMagicLeft()")
+	}
+	function playerCrouchMagicRight() {
+		console.log("playerCrouchMagicRight()")
+	}
+	function playerMagicUp() {
+		console.log("playerMagicUp()");
+	}
 	function getCurrentTile() {
 		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
 	}
-
 	function getTileBelow() {
 		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x]];
 	}
-
 	function getTileAbove() {
 		return mapCodes[game.levelState[game.player.pos.y - 1][game.player.pos.x]];
 	}
-
 	function getTileLeft() {
 		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x - 1]];
 	}
-
 	function getTileRight() {
 		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x + 1]];
 	}
-
 	function drawTile(tileX, tileY, desX, desY) {
 		var spriteSize = 40;
 		ctx.drawImage(sprite, tileX * spriteSize, tileY * spriteSize, spriteSize, spriteSize, desX * spriteSize, desY * spriteSize, spriteSize, spriteSize);
@@ -302,19 +470,38 @@
 	window.addEventListener("keydown", function(e) {
 
 		switch(e.keyCode) {
+			case 32: // Spacebar
+				if (game.player.state == "standing") {
+
+					if (game.keysDown.W && !getTileAbove().blocking) {
+						playerMagicUp()
+					}
+					else if (game.player.direction == "left") {
+						playerMagicLeft();
+					} else {
+						playerMagicRight();
+					}
+
+				} else if (game.player.state == "crouching") {
+
+					if (game.player.direction == "left") {
+						playerCrouchMagicLeft();
+					} else {
+						playerCrouchMagicRight();
+					}
+
+				}
+				game.keysDown.space = true;
+				break;
 			case 37: // Left Arrow
 			case 65: // A
-				if (game.player.state == "standing" && getTileBelow().blocking && !getTileLeft().blocking) {
-					playerWalkLeft();
-				}
 				game.keysDown.A = true;
+				playerWalkLeft();
 				break;
 			case 39: // Right Arrow
 			case 68: // D
-				if (game.player.state == "standing" && getTileBelow().blocking && !getTileRight().blocking) {
-					playerWalkRight();	
-				}
 				game.keysDown.D = true;
+				playerWalkRight();	
 				break;
 			case 40: // Down Arrow
 			case 83: // S
@@ -330,6 +517,9 @@
 	window.addEventListener("keyup", function(e) {
 
 		switch(e.keyCode) {
+			case 32: // Spacebar
+				game.keysDown.Space = false;
+				break;
 			case 37: // Left Arrow
 			case 65: // A
 				game.keysDown.A = false;
@@ -341,7 +531,6 @@
 			case 40: // Down Arrow
 			case 83: // S
 				if (game.player.state == "crouching") {
-					game.player.animationStep = 0;
 					playerStand();
 				}
 				game.keysDown.S = false;
