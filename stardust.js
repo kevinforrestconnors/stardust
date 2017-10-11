@@ -63,10 +63,10 @@ var GLOBALS = {
 
 			if (getTileBelow().blocking) {
 				playerStand();
-				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 			} else {
 				playerFall();
-				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 			}
 
 		} else if (game.player.state == "falling") {
@@ -86,7 +86,7 @@ var GLOBALS = {
 
 			game.player.animationOffset = game.player.animationStep / 20;
 
-			drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+			drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 
 			// Gone down a square; switch based on where we are
 			if (game.player.animationStep == GLOBALS.fallDuration) {
@@ -95,7 +95,7 @@ var GLOBALS = {
 				game.player.animationOffset = 0;
 				game.player.pos.y++;
 
-				drawHero(3, 0.2, 40, 40, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
 				if (game.player.pos.y > 11) {
 					//Play(SND_FALL, FALSE, TRUE);
@@ -114,14 +114,14 @@ var GLOBALS = {
 
 			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x + game.player.animationOffset, game.player.pos.y);
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + game.player.animationOffset, game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset = 0;
 				game.player.pos.x++;
 
-				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 
 				if (getTileBelow().blocking) {
 					playerStand();
@@ -136,14 +136,14 @@ var GLOBALS = {
 			game.player.animationStep++;
 			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 		
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, 40, 40, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset = 0;
 				game.player.pos.x--;
 
-				drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 
 				if (getTileBelow().blocking) {
 					playerStand();
@@ -158,11 +158,11 @@ var GLOBALS = {
 			game.player.animationStep++;
 
 			if (game.player.animationStep >= 1 && game.player.animationStep <= 5) { // Player has just entered crouch
-				drawHero(2, 6, 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, 6, game.player.pos.x, game.player.pos.y);
 			} else if (game.player.animationStep >= 6 && game.player.animationStep <= 10) {
-				drawHero(2, 7, 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, 7, game.player.pos.x, game.player.pos.y);
 			} else {
-				drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, 8, game.player.pos.x, game.player.pos.y);
 			}
 
 		} else if (game.player.state == "magicRight") {
@@ -172,13 +172,13 @@ var GLOBALS = {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 
-				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
 					game.player.animationOffset = 0;
 
-					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + 1] = "0";
 					playerStand();
 					
@@ -190,13 +190,13 @@ var GLOBALS = {
 				game.player.animationOffset = game.player.animationStep / 20;
 				
 				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + 1, game.player.pos.y);
-				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
 					game.player.animationOffset = 0;
 
-					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + 1] = "B";
 					playerStand();
 					
@@ -210,13 +210,13 @@ var GLOBALS = {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
  
-				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
 					game.player.animationOffset = 0;
 
-					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "0";
 					playerStand();
 					
@@ -228,13 +228,13 @@ var GLOBALS = {
 				game.player.animationOffset = game.player.animationStep / 20;
 				
 				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x - 1, game.player.pos.y);
-				drawHero(2, Math.floor(game.player.animationStep / 8), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
 					game.player.animationOffset = 0;
 
-					drawHero(0, 0, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x - 1] = "B";
 					playerStand();
 					
@@ -248,11 +248,11 @@ var GLOBALS = {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
  
-				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + 1] = "0";
 					playerCrouch();		
 
@@ -264,11 +264,11 @@ var GLOBALS = {
 				game.player.animationOffset = game.player.animationStep / 20;
 				
 				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + 1, game.player.pos.y + 1);
-				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + 1] = "B";
 					playerCrouch();
 					
@@ -282,11 +282,11 @@ var GLOBALS = {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
  
-				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+					drawHero(4, 7, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "0";
 					playerCrouch();		
 
@@ -309,6 +309,23 @@ var GLOBALS = {
 				}		
 			}
 
+		} else if (game.player.state == "magicUp") {
+
+			game.player.animationStep++;
+			game.player.animationOffset = game.player.animationStep / 40;
+			
+			drawTile(3, 2, game.player.pos.x, game.player.pos.y);
+			drawHero(4, 4 + Math.floor(game.player.animationStep / 13), game.player.pos.x, game.player.pos.y - game.player.animationOffset);
+
+
+			if (game.player.animationStep == GLOBALS.magicDuration) {
+
+				game.levelState[game.player.pos.y][game.player.pos.x] = "G";
+				game.player.pos.y--;
+				drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+				playerStand();
+				
+			}		
 		}
 
 		window.requestAnimationFrame(main);
@@ -514,6 +531,9 @@ var GLOBALS = {
 	}
 	function playerMagicUp() {
 		console.log("playerMagicUp()");
+		if (!getTileAbove().blocking && getTileBelow().name != "Green Magic" && getTileBelow().name != "Blue Magic") {
+			game.player.state = "magicUp";
+		}
 	}
 	function getCurrentTile() {
 		return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
@@ -536,12 +556,15 @@ var GLOBALS = {
 	function getTileBottomRight() {
 		return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
 	}
-	function drawTile(tileX, tileY, desX, desY) {
-		var spriteSize = 40;
-		ctx.drawImage(sprite, tileX * spriteSize, tileY * spriteSize, spriteSize, spriteSize, desX * spriteSize, desY * spriteSize, spriteSize, spriteSize);
+	function drawTile(tileX, tileY, desX, desY, sX, sY) {
+		if (!sX) {sX = 40}
+		if (!sY) {sY = 40}
+		ctx.drawImage(sprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 	}
 
-	function drawHero(tileX, tileY, sX, sY, desX, desY) {
+	function drawHero(tileX, tileY, desX, desY, sX, sY) {
+		if (!sX) {sX = 40}
+		if (!sY) {sY = 40}
 		if (game.player.direction == "right") {
 			ctx.drawImage(playerSprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 		} else {
@@ -639,6 +662,10 @@ var GLOBALS = {
 				}
 				game.keysDown.S = true;
 				break;
+			case 38: // Up Arrow
+			case 87: // W
+				game.keysDown.W = true;
+				break;
 		}
 
 	}, true);
@@ -663,6 +690,10 @@ var GLOBALS = {
 					playerStand();
 				}
 				game.keysDown.S = false;
+				break;
+			case 38: // Up Arrow
+			case 87: // W
+				game.keysDown.W = false;
 				break;
 		}
 
