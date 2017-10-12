@@ -104,12 +104,14 @@ function updatePlayer(delta) {
 				
 				if (game.player.pos.y > 11) {
 					//Play(SND_FALL, FALSE, TRUE);
-					console.log("dead"); //pStep = 0; PlayerErase();
+				console.log("dead"); //pStep = 0; PlayerErase();
 				// } else if(map[px][py].id == TL_WARP) {
 				// 	//Play(SND_WARP, FALSE, TRUE);
 				// 	pStep = 0; PlayerErase();
-				} else {
+				} else if (getTileBelow().blocking) {
 					playerStand();
+				} else {
+					playerFall();
 				}
 			}
 
