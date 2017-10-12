@@ -108,7 +108,7 @@ function updatePlayer(delta) {
 
 				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
-				if (game.player.pos.y > 11) {
+				if (game.player.pos.y > GLOBALS.gameHeight) {
 					deathByFalling();
 				} else if (getTileBelow().blocking) {
 					playerStand();
@@ -310,27 +310,28 @@ function updatePlayer(delta) {
 //;(function () {
 function main(timestamp) {
 
-	if (GLOBALS.gameRunning) {
-
-		// Throttle the frame rate
-		if (timestamp < GLOBALS.lastFrameTimeMs + (1000 / GLOBALS.maxFPS)) {
-			window.requestAnimationFrame(main);
-			return;
-		}
-
-		GLOBALS.delta += timestamp - GLOBALS.lastFrameTimeMs;
-		GLOBALS.lastFrameTimeMs = timestamp;
-
-		drawMap(game.levelState);
-
-		while (GLOBALS.delta >= GLOBALS.timestep) {
-			updatePlayer(GLOBALS.timestep);
-			GLOBALS.delta -= GLOBALS.timestep;
-		}
-
+	// Throttle the frame rate
+	if (timestamp < GLOBALS.lastFrameTimeMs + (1000 / GLOBALS.maxFPS)) {
 		window.requestAnimationFrame(main);
-
+		return;
 	}
+
+	GLOBALS.delta += timestamp - GLOBALS.lastFrameTimeMs;
+	GLOBALS.lastFrameTimeMs = timestamp;
+
+	if (GLOBALS.gameRunning) {
+		drawMap(game.levelState);
+	}
+	
+
+	while (GLOBALS.delta >= GLOBALS.timestep) {
+		if (GLOBALS.gameRunning) {
+			updatePlayer(GLOBALS.timestep);	
+		}
+		GLOBALS.delta -= GLOBALS.timestep;
+	}
+
+	window.requestAnimationFrame(main);
 
 }
 
@@ -548,6 +549,7 @@ function playerMagicUp() {
 	}
 }
 function getCurrentTile() {
+	if (game.player.pos.x >= GLOBALS.gameWidth - 1 || game.player.pos.x <= 0 || game.player.pos.y >= GLOBALS.gameHeight - 1 || game.player.pos.x <= 0) {return mapCodes["0"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
 }
 function getTileBelow() {
