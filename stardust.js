@@ -1,5 +1,9 @@
 var GLOBALS = {
 
+	gameRunning: true,
+	gameWidth: 16,
+	gameHeight: 12,
+
 	lastFrameTimeMs: 0,
 	maxFPS: 60,
 	delta: 0,
@@ -64,7 +68,9 @@ function updatePlayer(delta) {
 			startLevel();
 		}
 
-		if (game.player.state == "standing") {
+		if (game.player.state == "dead") {
+			// Do Nothing
+		} else if (game.player.state == "standing") {
 
 			if (getTileBelow().blocking) {
 				playerStand();
@@ -103,11 +109,7 @@ function updatePlayer(delta) {
 				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
 				if (game.player.pos.y > 11) {
-					//Play(SND_FALL, FALSE, TRUE);
-				console.log("dead"); //pStep = 0; PlayerErase();
-				// } else if(map[px][py].id == TL_WARP) {
-				// 	//Play(SND_WARP, FALSE, TRUE);
-				// 	pStep = 0; PlayerErase();
+					deathByFalling();
 				} else if (getTileBelow().blocking) {
 					playerStand();
 				} else {
@@ -307,23 +309,29 @@ function updatePlayer(delta) {
 
 //;(function () {
 function main(timestamp) {
-	// Throttle the frame rate
-	if (timestamp < GLOBALS.lastFrameTimeMs + (1000 / GLOBALS.maxFPS)) {
+
+	if (GLOBALS.gameRunning) {
+
+		// Throttle the frame rate
+		if (timestamp < GLOBALS.lastFrameTimeMs + (1000 / GLOBALS.maxFPS)) {
+			window.requestAnimationFrame(main);
+			return;
+		}
+
+		GLOBALS.delta += timestamp - GLOBALS.lastFrameTimeMs;
+		GLOBALS.lastFrameTimeMs = timestamp;
+
+		drawMap(game.levelState);
+
+		while (GLOBALS.delta >= GLOBALS.timestep) {
+			updatePlayer(GLOBALS.timestep);
+			GLOBALS.delta -= GLOBALS.timestep;
+		}
+
 		window.requestAnimationFrame(main);
-		return;
+
 	}
 
-	GLOBALS.delta += timestamp - GLOBALS.lastFrameTimeMs;
-	GLOBALS.lastFrameTimeMs = timestamp;
-
-	drawMap(game.levelState);
-
-	while (GLOBALS.delta >= GLOBALS.timestep) {
-		updatePlayer(GLOBALS.timestep);
-		GLOBALS.delta -= GLOBALS.timestep;
-	}
-
-	window.requestAnimationFrame(main);
 }
 
 var canvas = document.getElementById("game");
@@ -425,7 +433,8 @@ var game = {
 	level: 1,
 	levelState: [],
 	audio: {
-		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav')
+		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
+		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav')
 	},
 	player: {
 		pos: {
@@ -446,13 +455,29 @@ var game = {
 	}
 }
 
+function deathByFalling() {
+	game.player.state = "dead";
+	GLOBALS.gameRunning = false;
+	game.audio.deathByFalling.play();
+	setTimeout(function() {
+		GLOBALS.gameRunning = true;
+		startLevel();
+		console.log("felch ")
+	}, 1300)
+}
+
 function startLevel() {
-	game.audio.beginLevel.pause();
-	game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
-	game.audio.beginLevel.play();
-	game.player.pos = drawMap(levels[game.level]);
-	game.levelState = levels[game.level].slice(0, levels[game.level].length);
-	main(0);
+
+	if (GLOBALS.gameRunning) {
+		game.audio.beginLevel.pause();
+		game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
+		game.audio.beginLevel.play();
+		game.player.pos = drawMap(levels[game.level]);
+		game.levelState = levels[game.level].slice(0, levels[game.level].length);
+		game.player.state = "standing";
+		main(0);
+	}
+
 }
 
 function playerFall() {
@@ -526,21 +551,27 @@ function getCurrentTile() {
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
 }
 function getTileBelow() {
+	if (game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["0"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x]];
 }
 function getTileAbove() {
+	if (game.player.pos.y <= 0) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y - 1][game.player.pos.x]];
 }
 function getTileLeft() {
+	if (game.player.pos.x <= 0) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x - 1]];
 }
 function getTileRight() {
+	if (game.player.pos.x >= GLOBALS.gameWidth - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x + 1]];
 }
 function getTileBottomLeft() {
+	if (game.player.pos.x <= 0 || game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x - 1]];
 }
 function getTileBottomRight() {
+	if (game.player.pos.x >= GLOBALS.gameWidth - 1 || game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
 }
 function drawTile(tileX, tileY, desX, desY, sX, sY) {
@@ -601,8 +632,6 @@ var playerLoaded = false;
 playerSprite.onload = function() {
 	playerLoaded = true;
 	if (spriteLoaded) {
-		game.player.pos = drawMap(levels[game.level]);
-		game.levelState = levels[game.level].slice(0, levels[game.level].length);
 		startLevel();
 		main(0);
 	}
