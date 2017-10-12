@@ -11,7 +11,7 @@ var GLOBALS = {
 	XYTILESwidth: 6,
 	XYTILESheight: 11,
 
-	walkDuration: 18,
+	walkDuration: 20,
 	fallDuration: 20,
 	magicDuration: 40,
 }
@@ -284,40 +284,6 @@ function updatePlayer(delta) {
 					
 				}		
 			}
-
-		// } else if (game.player.state == "crouchMagicLeft") {
-
-		// 	if (getTileBottomLeft().eraseable) {
-
-		// 		game.player.animationStep++;
-		// 		game.player.animationOffset = game.player.animationStep / 20;
- 
-		// 		drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
-
-		// 		if (game.player.animationStep == GLOBALS.magicDuration) {
-
-		// 			drawHero(4, 7, game.player.pos.x, game.player.pos.y);
-		// 			game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "0";
-		// 			playerCrouch();		
-
-		// 		}
-
-		// 	} else {
-
-		// 		game.player.animationStep++;
-		// 		game.player.animationOffset = game.player.animationStep / 20;
-				
-		// 		drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x - 1, game.player.pos.y + 1);
-		// 		drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
-
-		// 		if (game.player.animationStep == GLOBALS.magicDuration) {
-
-		// 			drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
-		// 			game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "B";
-		// 			playerCrouch();
-					
-		// 		}		
-		// 	}
 
 		} else if (game.player.state == "magicUp") {
 
