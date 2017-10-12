@@ -660,7 +660,7 @@ window.addEventListener("keydown", function(e) {
 					playerMagicRight();
 				}
 
-			} else if (game.player.state == "crouching" && game.player.animationStep > 10) {
+			} else if (game.player.state == "crouching") {
 
 				if (game.player.direction == "left") {
 					playerCrouchMagicLeft();
