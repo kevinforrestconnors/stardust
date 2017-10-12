@@ -11,7 +11,7 @@ var GLOBALS = {
 	XYTILESwidth: 6,
 	XYTILESheight: 11,
 
-	walkDuration: 20,
+	walkDuration: 18,
 	fallDuration: 20,
 	magicDuration: 40,
 }
@@ -248,9 +248,12 @@ function updatePlayer(delta) {
 				}		
 			}
 
-		} else if (game.player.state == "crouchMagicRight") {
+		} else if (game.player.state == "crouchMagic") {
 
-			if (getTileBottomRight().eraseable) {
+			var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
+			var direction = game.player.direction == "left" ? -1 : 1
+
+			if (tile.eraseable) {
 
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
@@ -260,7 +263,7 @@ function updatePlayer(delta) {
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
 					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x + 1] = "0";
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
 					playerCrouch();		
 
 				}
@@ -270,51 +273,51 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + 1, game.player.pos.y + 1);
+				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + direction, game.player.pos.y + 1);
 				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
 					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x + 1] = "B";
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "B";
 					playerCrouch();
 					
 				}		
 			}
 
-		} else if (game.player.state == "crouchMagicLeft") {
+		// } else if (game.player.state == "crouchMagicLeft") {
 
-			if (getTileBottomLeft().eraseable) {
+		// 	if (getTileBottomLeft().eraseable) {
 
-				game.player.animationStep++;
-				game.player.animationOffset = game.player.animationStep / 20;
+		// 		game.player.animationStep++;
+		// 		game.player.animationOffset = game.player.animationStep / 20;
  
-				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
+		// 		drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
 
-				if (game.player.animationStep == GLOBALS.magicDuration) {
+		// 		if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(4, 7, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "0";
-					playerCrouch();		
+		// 			drawHero(4, 7, game.player.pos.x, game.player.pos.y);
+		// 			game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "0";
+		// 			playerCrouch();		
 
-				}
+		// 		}
 
-			} else {
+		// 	} else {
 
-				game.player.animationStep++;
-				game.player.animationOffset = game.player.animationStep / 20;
+		// 		game.player.animationStep++;
+		// 		game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x - 1, game.player.pos.y + 1);
-				drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
+		// 		drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x - 1, game.player.pos.y + 1);
+		// 		drawHero(4, Math.floor(game.player.animationStep / 10), 40, 40, game.player.pos.x, game.player.pos.y);
 
-				if (game.player.animationStep == GLOBALS.magicDuration) {
+		// 		if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "B";
-					playerCrouch();
+		// 			drawHero(2, 8, 40, 40, game.player.pos.x, game.player.pos.y);
+		// 			game.levelState[game.player.pos.y + 1][game.player.pos.x - 1] = "B";
+		// 			playerCrouch();
 					
-				}		
-			}
+		// 		}		
+		// 	}
 
 		} else if (game.player.state == "magicUp") {
 
@@ -492,7 +495,6 @@ function playerFall() {
 }
 
 function playerStand() {
-	console.log("playerStand()")
 	game.player.state = "standing";
 	game.player.animationStep = 0;
 	game.player.animationOffset = 0;
@@ -538,20 +540,14 @@ function playerMagicRight() {
 		game.player.state = "magicRight";
 	}
 }
-function playerCrouchMagicLeft() {
-	console.log("playerCrouchMagicLeft()")
-	if (!getTileBottomLeft().blocking || getTileBottomLeft().eraseable) {
+function playerCrouchMagic() {
+
+	var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
+
+	if (!tile.blocking || tile.eraseable) {
 		game.player.animationStep = 0;
 		game.player.animationOffset = 0;
-		game.player.state = "crouchMagicLeft";
-	}
-}
-function playerCrouchMagicRight() {
-	console.log("playerCrouchMagicRight()")
-	if (!getTileBottomRight().blocking || getTileBottomRight().eraseable) {
-		game.player.animationStep = 0;
-		game.player.animationOffset = 0;
-		game.player.state = "crouchMagicRight";
+		game.player.state = "crouchMagic";
 	}
 }
 function playerMagicUp() {
@@ -663,9 +659,9 @@ window.addEventListener("keydown", function(e) {
 			} else if (game.player.state == "crouching") {
 
 				if (game.player.direction == "left") {
-					playerCrouchMagicLeft();
+					playerCrouchMagic();
 				} else {
-					playerCrouchMagicRight();
+					playerCrouchMagic();
 				}
 
 			}
