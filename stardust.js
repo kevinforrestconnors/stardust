@@ -55,7 +55,7 @@ function updatePlayer(delta) {
 			}
 		}
 
-		if (getCurrentTile().name == "Exit Portal") {
+		if (getCurrentTile().name == "Exit Portal" && getTileBelow().blocking) {
 			game.level++;
 			startLevel();
 		}
