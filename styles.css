@@ -1,3 +1,27 @@
+body {
+	padding: 0;
+	margin: 0;
+	background-color: rgb(30, 30, 30);
+
+}
+
+.header {
+	text-align: center;
+}
+
+h1 {
+
+	color: rgb(230, 230, 230);	
+}
+
+
+.main-content {
+	text-align: center;
+}
+
 #game {
-	border: 1px solid blue;
+	width: 50%;
+	height: 50%;
+	display: inline-block;
+	border: 2px solid white;
 }
