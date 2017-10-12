@@ -46,11 +46,11 @@ function updatePlayer(delta) {
 		} 
 
 		if (game.keysDown.A) {
-			playerWalkLeft();
+			//playerWalkLeft();
 		}
 
 		if (game.keysDown.D) {
-			playerWalkRight();	
+			//playerWalkRight();	
 		} 
 
 		if (game.keysDown.S) {
@@ -117,18 +117,31 @@ function updatePlayer(delta) {
 				}
 			}
 
-		} else if (game.player.state == "walkRight") {
+		} else if (game.player.state == "prepareWalk") {
+
+			game.player.animationStep++;
+
+			drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+
+			if (game.player.animationStep > 5) {
+				playerStand();
+				playerWalk();	
+			} 
+
+		} else if (game.player.state == "walk") {
+
+			var direction = game.player.direction == "left" ? -1 : 1
 
 			game.player.animationStep++;
 
 			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + game.player.animationOffset, game.player.pos.y);
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset = 0;
-				game.player.pos.x++;
+				game.player.pos.x += direction;
 
 				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 
@@ -140,27 +153,27 @@ function updatePlayer(delta) {
 				
 			}
 
-		} else if (game.player.state == "walkLeft") {
+		// } else if (game.player.state == "walkLeft") {
 
-			game.player.animationStep++;
-			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
+		// 	game.player.animationStep++;
+		// 	game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 		
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
+		// 	drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
 
-			if (game.player.animationStep == GLOBALS.walkDuration) {
-				game.player.animationStep = 0;
-				game.player.animationOffset = 0;
-				game.player.pos.x--;
+		// 	if (game.player.animationStep == GLOBALS.walkDuration) {
+		// 		game.player.animationStep = 0;
+		// 		game.player.animationOffset = 0;
+		// 		game.player.pos.x--;
 
-				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+		// 		drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 
-				if (getTileBelow().blocking) {
-					playerStand();
-				} else {
-					playerFall();
-				}
+		// 		if (getTileBelow().blocking) {
+		// 			playerStand();
+		// 		} else {
+		// 			playerFall();
+		// 		}
 				
-			}
+		// 	}
 
 		} else if (game.player.state == "crouching") {
 
@@ -492,30 +505,42 @@ function playerStand() {
 	game.player.animationOffset = 0;
 }
 
-function playerWalkLeft() {
-	console.log("playerWalkLeft()")
+function playerTurn() {
+
 	if (game.player.state == "standing") {
+		if (game.player.direction == "left") {
+			if (game.keysDown.A) {
+				game.player.state = "walk";
+			} else {
+				game.player.direction = "right"
+				game.player.state = "prepareWalk"
+			}
+ 		} else {
+ 			if (game.keysDown.D) {
+				game.player.state = "walk";
+			} else {
+				game.player.direction = "left"
+				game.player.state = "prepareWalk"
+			}	
+ 		}
+	}
+	
+}
 
-		game.player.direction = "left";	
+function playerWalk() {
 
-		if (getTileBelow().blocking && !getTileLeft().blocking) {
-			game.player.state = "walkLeft"; 
+
+
+	if (game.player.direction == "left")  {
+		if (!getTileLeft().blocking) {
+			game.player.state = "walk";
+		}
+	} else {
+		if (!getTileRight().blocking) {
+			game.player.state = "walk";
 		}
 	}
 }
-
-function playerWalkRight() {
-	console.log("playerWalkRight()")
-	if (game.player.state == "standing") {
-
-		game.player.direction = "right";
-
-		if (getTileBelow().blocking && !getTileRight().blocking) {
-			game.player.state = "walkRight";		
-		}
-	}
-}
-
 function playerCrouch() {
 	console.log("playerCrouch()");
 	game.player.state = "crouching"
@@ -667,12 +692,12 @@ window.addEventListener("keydown", function(e) {
 		case 37: // Left Arrow
 		case 65: // A
 			game.keysDown.A = true;
-			playerWalkLeft();
+			playerTurn();
 			break;
 		case 39: // Right Arrow
 		case 68: // D
 			game.keysDown.D = true;
-			playerWalkRight();	
+			playerTurn();	
 			break;
 		case 40: // Down Arrow
 		case 83: // S
@@ -701,10 +726,16 @@ window.addEventListener("keyup", function(e) {
 		case 37: // Left Arrow
 		case 65: // A
 			game.keysDown.A = false;
+			if (game.player.state == "prepareWalk") {
+				playerStand()
+			}
 			break;
 		case 39:
 		case 68:
 			game.keysDown.D = false;
+			if (game.player.state == "prepareWalk") {
+				playerStand()
+			}
 			break;
 		case 40: // Down Arrow
 		case 83: // S
