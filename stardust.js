@@ -45,14 +45,6 @@ function updatePlayer(delta) {
 			}
 		} 
 
-		if (game.keysDown.A) {
-			//playerWalkLeft();
-		}
-
-		if (game.keysDown.D) {
-			//playerWalkRight();	
-		} 
-
 		if (game.keysDown.S) {
 			if (game.player.state == "standing") {
 				playerCrouch();
@@ -128,7 +120,7 @@ function updatePlayer(delta) {
 				playerWalk();	
 			} 
 
-		} else if (game.player.state == "walk") {
+		} else if (game.player.state == "walking") {
 
 			var direction = game.player.direction == "left" ? -1 : 1
 
@@ -152,28 +144,6 @@ function updatePlayer(delta) {
 				}
 				
 			}
-
-		// } else if (game.player.state == "walkLeft") {
-
-		// 	game.player.animationStep++;
-		// 	game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
-		
-		// 	drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
-
-		// 	if (game.player.animationStep == GLOBALS.walkDuration) {
-		// 		game.player.animationStep = 0;
-		// 		game.player.animationOffset = 0;
-		// 		game.player.pos.x--;
-
-		// 		drawHero(0, 0, game.player.pos.x, game.player.pos.y);
-
-		// 		if (getTileBelow().blocking) {
-		// 			playerStand();
-		// 		} else {
-		// 			playerFall();
-		// 		}
-				
-		// 	}
 
 		} else if (game.player.state == "crouching") {
 
@@ -441,8 +411,6 @@ var mapCodes = {
 	}
 }
 
-
-
 var game = {
 	level: 1,
 	levelState: [],
@@ -476,10 +444,8 @@ function deathByFalling() {
 	setTimeout(function() {
 		GLOBALS.gameRunning = true;
 		startLevel();
-		console.log("felch ")
 	}, 1300)
 }
-
 function startLevel() {
 
 	if (GLOBALS.gameRunning) {
@@ -491,53 +457,53 @@ function startLevel() {
 		game.player.state = "standing";
 		main(0);
 	}
-
 }
-
 function playerFall() {
 	console.log("playerFall()")
 	game.player.state = "falling";
 }
-
 function playerStand() {
 	game.player.state = "standing";
 	game.player.animationStep = 0;
 	game.player.animationOffset = 0;
 }
-
 function playerTurn() {
 
 	if (game.player.state == "standing") {
 		if (game.player.direction == "left") {
 			if (game.keysDown.A) {
-				game.player.state = "walk";
+				if (!getTileLeft().blocking) {
+					game.player.state = "walking";
+				} else {
+					game.player.state = "standing"
+				}
 			} else {
 				game.player.direction = "right"
 				game.player.state = "prepareWalk"
 			}
  		} else {
  			if (game.keysDown.D) {
-				game.player.state = "walk";
+				if (!getTileRight().blocking) {
+					game.player.state = "walking";
+				} else {
+					game.player.state = "standing"
+				}
 			} else {
 				game.player.direction = "left"
 				game.player.state = "prepareWalk"
 			}	
  		}
-	}
-	
+	}	
 }
-
 function playerWalk() {
-
-
 
 	if (game.player.direction == "left")  {
 		if (!getTileLeft().blocking) {
-			game.player.state = "walk";
+			game.player.state = "walking";
 		}
 	} else {
 		if (!getTileRight().blocking) {
-			game.player.state = "walk";
+			game.player.state = "walking";
 		}
 	}
 }
@@ -574,7 +540,7 @@ function playerMagicUp() {
 	}
 }
 function getCurrentTile() {
-	if (game.player.pos.x >= GLOBALS.gameWidth - 1 || game.player.pos.x <= 0 || game.player.pos.y >= GLOBALS.gameHeight - 1 || game.player.pos.x <= 0) {return mapCodes["0"]}
+	if (game.player.pos.x >= GLOBALS.gameWidth || game.player.pos.x < 0 || game.player.pos.y >= GLOBALS.gameHeight || game.player.pos.x < 0) {return mapCodes["0"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
 }
 function getTileBelow() {
@@ -606,7 +572,6 @@ function drawTile(tileX, tileY, desX, desY, sX, sY) {
 	if (!sY) {sY = 40}
 	ctx.drawImage(sprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 }
-
 function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
@@ -617,7 +582,6 @@ function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	}
 	
 }
-
 function drawMap(map) {
 
 	var i = 0, j = 0;
