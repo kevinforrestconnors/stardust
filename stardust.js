@@ -1,5 +1,9 @@
 var GLOBALS = {
 
+	gameRunning: true,
+	gameWidth: 16,
+	gameHeight: 12,
+
 	lastFrameTimeMs: 0,
 	maxFPS: 60,
 	delta: 0,
@@ -41,14 +45,6 @@ function updatePlayer(delta) {
 			}
 		} 
 
-		if (game.keysDown.A) {
-			playerWalkLeft();
-		}
-
-		if (game.keysDown.D) {
-			playerWalkRight();	
-		} 
-
 		if (game.keysDown.S) {
 			if (game.player.state == "standing") {
 				playerCrouch();
@@ -64,7 +60,9 @@ function updatePlayer(delta) {
 			startLevel();
 		}
 
-		if (game.player.state == "standing") {
+		if (game.player.state == "dead") {
+			// Do Nothing
+		} else if (game.player.state == "standing") {
 
 			if (getTileBelow().blocking) {
 				playerStand();
@@ -102,12 +100,8 @@ function updatePlayer(delta) {
 
 				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
-				if (game.player.pos.y > 11) {
-					//Play(SND_FALL, FALSE, TRUE);
-				console.log("dead"); //pStep = 0; PlayerErase();
-				// } else if(map[px][py].id == TL_WARP) {
-				// 	//Play(SND_WARP, FALSE, TRUE);
-				// 	pStep = 0; PlayerErase();
+				if (game.player.pos.y > GLOBALS.gameHeight) {
+					deathByFalling();
 				} else if (getTileBelow().blocking) {
 					playerStand();
 				} else {
@@ -115,40 +109,31 @@ function updatePlayer(delta) {
 				}
 			}
 
-		} else if (game.player.state == "walkRight") {
+		} else if (game.player.state == "prepareWalk") {
+
+			game.player.animationStep++;
+
+			drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+
+			if (game.player.animationStep > 5) {
+				playerStand();
+				playerWalk();	
+			} 
+
+		} else if (game.player.state == "walking") {
+
+			var direction = game.player.direction == "left" ? -1 : 1
 
 			game.player.animationStep++;
 
 			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + game.player.animationOffset, game.player.pos.y);
+			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset = 0;
-				game.player.pos.x++;
-
-				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
-
-				if (getTileBelow().blocking) {
-					playerStand();
-				} else {
-					playerFall();
-				}
-				
-			}
-
-		} else if (game.player.state == "walkLeft") {
-
-			game.player.animationStep++;
-			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
-		
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x - game.player.animationOffset, game.player.pos.y);
-
-			if (game.player.animationStep == GLOBALS.walkDuration) {
-				game.player.animationStep = 0;
-				game.player.animationOffset = 0;
-				game.player.pos.x--;
+				game.player.pos.x += direction;
 
 				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
 
@@ -307,6 +292,7 @@ function updatePlayer(delta) {
 
 //;(function () {
 function main(timestamp) {
+
 	// Throttle the frame rate
 	if (timestamp < GLOBALS.lastFrameTimeMs + (1000 / GLOBALS.maxFPS)) {
 		window.requestAnimationFrame(main);
@@ -316,14 +302,20 @@ function main(timestamp) {
 	GLOBALS.delta += timestamp - GLOBALS.lastFrameTimeMs;
 	GLOBALS.lastFrameTimeMs = timestamp;
 
-	drawMap(game.levelState);
+	if (GLOBALS.gameRunning) {
+		drawMap(game.levelState);
+	}
+	
 
 	while (GLOBALS.delta >= GLOBALS.timestep) {
-		updatePlayer(GLOBALS.timestep);
+		if (GLOBALS.gameRunning) {
+			updatePlayer(GLOBALS.timestep);	
+		}
 		GLOBALS.delta -= GLOBALS.timestep;
 	}
 
 	window.requestAnimationFrame(main);
+
 }
 
 var canvas = document.getElementById("game");
@@ -419,13 +411,12 @@ var mapCodes = {
 	}
 }
 
-
-
 var game = {
 	level: 1,
 	levelState: [],
 	audio: {
-		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav')
+		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
+		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav')
 	},
 	player: {
 		pos: {
@@ -446,50 +437,76 @@ var game = {
 	}
 }
 
-function startLevel() {
-	game.audio.beginLevel.pause();
-	game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
-	game.audio.beginLevel.play();
-	game.player.pos = drawMap(levels[game.level]);
-	game.levelState = levels[game.level].slice(0, levels[game.level].length);
-	main(0);
+function deathByFalling() {
+	game.player.state = "dead";
+	GLOBALS.gameRunning = false;
+	game.audio.deathByFalling.play();
+	setTimeout(function() {
+		GLOBALS.gameRunning = true;
+		startLevel();
+	}, 1300)
 }
+function startLevel() {
 
+	if (GLOBALS.gameRunning) {
+		game.audio.beginLevel.pause();
+		game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
+		game.audio.beginLevel.play();
+		game.player.pos = drawMap(levels[game.level]);
+		game.levelState = levels[game.level].slice(0, levels[game.level].length);
+		game.player.state = "standing";
+		main(0);
+	}
+}
 function playerFall() {
 	console.log("playerFall()")
 	game.player.state = "falling";
 }
-
 function playerStand() {
 	game.player.state = "standing";
 	game.player.animationStep = 0;
 	game.player.animationOffset = 0;
 }
+function playerTurn() {
 
-function playerWalkLeft() {
-	console.log("playerWalkLeft()")
 	if (game.player.state == "standing") {
+		if (game.player.direction == "left") {
+			if (game.keysDown.A) {
+				if (!getTileLeft().blocking) {
+					game.player.state = "walking";
+				} else {
+					game.player.state = "standing"
+				}
+			} else {
+				game.player.direction = "right"
+				game.player.state = "prepareWalk"
+			}
+ 		} else {
+ 			if (game.keysDown.D) {
+				if (!getTileRight().blocking) {
+					game.player.state = "walking";
+				} else {
+					game.player.state = "standing"
+				}
+			} else {
+				game.player.direction = "left"
+				game.player.state = "prepareWalk"
+			}	
+ 		}
+	}	
+}
+function playerWalk() {
 
-		game.player.direction = "left";	
-
-		if (getTileBelow().blocking && !getTileLeft().blocking) {
-			game.player.state = "walkLeft"; 
+	if (game.player.direction == "left")  {
+		if (!getTileLeft().blocking) {
+			game.player.state = "walking";
+		}
+	} else {
+		if (!getTileRight().blocking) {
+			game.player.state = "walking";
 		}
 	}
 }
-
-function playerWalkRight() {
-	console.log("playerWalkRight()")
-	if (game.player.state == "standing") {
-
-		game.player.direction = "right";
-
-		if (getTileBelow().blocking && !getTileRight().blocking) {
-			game.player.state = "walkRight";		
-		}
-	}
-}
-
 function playerCrouch() {
 	console.log("playerCrouch()");
 	game.player.state = "crouching"
@@ -523,24 +540,31 @@ function playerMagicUp() {
 	}
 }
 function getCurrentTile() {
+	if (game.player.pos.x >= GLOBALS.gameWidth || game.player.pos.x < 0 || game.player.pos.y >= GLOBALS.gameHeight || game.player.pos.x < 0) {return mapCodes["0"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x]];
 }
 function getTileBelow() {
+	if (game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["0"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x]];
 }
 function getTileAbove() {
+	if (game.player.pos.y <= 0) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y - 1][game.player.pos.x]];
 }
 function getTileLeft() {
+	if (game.player.pos.x <= 0) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x - 1]];
 }
 function getTileRight() {
+	if (game.player.pos.x >= GLOBALS.gameWidth - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y][game.player.pos.x + 1]];
 }
 function getTileBottomLeft() {
+	if (game.player.pos.x <= 0 || game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x - 1]];
 }
 function getTileBottomRight() {
+	if (game.player.pos.x >= GLOBALS.gameWidth - 1 || game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
 }
 function drawTile(tileX, tileY, desX, desY, sX, sY) {
@@ -548,7 +572,6 @@ function drawTile(tileX, tileY, desX, desY, sX, sY) {
 	if (!sY) {sY = 40}
 	ctx.drawImage(sprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 }
-
 function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
@@ -559,7 +582,6 @@ function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	}
 	
 }
-
 function drawMap(map) {
 
 	var i = 0, j = 0;
@@ -601,8 +623,6 @@ var playerLoaded = false;
 playerSprite.onload = function() {
 	playerLoaded = true;
 	if (spriteLoaded) {
-		game.player.pos = drawMap(levels[game.level]);
-		game.levelState = levels[game.level].slice(0, levels[game.level].length);
 		startLevel();
 		main(0);
 	}
@@ -636,12 +656,12 @@ window.addEventListener("keydown", function(e) {
 		case 37: // Left Arrow
 		case 65: // A
 			game.keysDown.A = true;
-			playerWalkLeft();
+			playerTurn();
 			break;
 		case 39: // Right Arrow
 		case 68: // D
 			game.keysDown.D = true;
-			playerWalkRight();	
+			playerTurn();	
 			break;
 		case 40: // Down Arrow
 		case 83: // S
@@ -670,10 +690,16 @@ window.addEventListener("keyup", function(e) {
 		case 37: // Left Arrow
 		case 65: // A
 			game.keysDown.A = false;
+			if (game.player.state == "prepareWalk") {
+				playerStand()
+			}
 			break;
 		case 39:
 		case 68:
 			game.keysDown.D = false;
+			if (game.player.state == "prepareWalk") {
+				playerStand()
+			}
 			break;
 		case 40: // Down Arrow
 		case 83: // S
