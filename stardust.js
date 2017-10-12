@@ -1,4 +1,3 @@
-
 var GLOBALS = {
 
 	lastFrameTimeMs: 0,
@@ -15,8 +14,7 @@ var GLOBALS = {
 	walkDuration: 20,
 	fallDuration: 20,
 	magicDuration: 40,
-} 
-
+}
 
 function updatePlayer(delta) {
 
@@ -63,9 +61,7 @@ function updatePlayer(delta) {
 
 		if (getCurrentTile().name == "Exit Portal") {
 			game.level++;
-			game.player.pos = drawMap(levels[game.level]);
-			game.levelState = levels[game.level].slice(0, levels[game.level].length);
-			main(0);
+			startLevel();
 		}
 
 		if (game.player.state == "standing") {
@@ -457,6 +453,9 @@ var mapCodes = {
 var game = {
 	level: 1,
 	levelState: [],
+	audio: {
+		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav')
+	},
 	player: {
 		pos: {
 			x: 0,
@@ -474,6 +473,15 @@ var game = {
 		S: false, 
 		D: false
 	}
+}
+
+function startLevel() {
+	game.audio.beginLevel.pause();
+	game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
+	game.audio.beginLevel.play();
+	game.player.pos = drawMap(levels[game.level]);
+	game.levelState = levels[game.level].slice(0, levels[game.level].length);
+	main(0);
 }
 
 function playerFall() {
@@ -546,7 +554,7 @@ function playerCrouchMagicRight() {
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
-	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic" && getTileBelow().name != "Blue Magic") {
+	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic") {// && getTileBelow().name != "Blue Magic") {
 		game.player.state = "magicUp";
 	}
 }
@@ -617,20 +625,21 @@ function drawMap(map) {
 	
 // Load Tiles
 var sprite = new Image();
-sprite.src = 'assets/XYTILES.JPG';
+sprite.src = 'assets/img/XYTILES.JPG';
 var spriteLoaded = false;
 sprite.onload = function() {
 	spriteLoaded = true;
 }
 
 var playerSprite = new Image();
-playerSprite.src = 'assets/XYHERO.JPG'
+playerSprite.src = 'assets/img/XYHERO.JPG'
 var playerLoaded = false;
 playerSprite.onload = function() {
 	playerLoaded = true;
 	if (spriteLoaded) {
 		game.player.pos = drawMap(levels[game.level]);
 		game.levelState = levels[game.level].slice(0, levels[game.level].length);
+		startLevel();
 		main(0);
 	}
 }
@@ -680,6 +689,9 @@ window.addEventListener("keydown", function(e) {
 		case 38: // Up Arrow
 		case 87: // W
 			game.keysDown.W = true;
+			break;
+		case 82: // R (restart the level)
+			startLevel();
 			break;
 	}
 
