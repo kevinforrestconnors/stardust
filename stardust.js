@@ -593,6 +593,7 @@ window.addEventListener("keydown", function(e) {
 
 	switch(e.keyCode) {
 		case 32: // Spacebar
+			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
 
 				if (game.keysDown.W && !getTileAbove().blocking) {
