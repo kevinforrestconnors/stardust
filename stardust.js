@@ -381,7 +381,10 @@ var game = {
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
-		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav')
+		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav'),
+		magicBlue: new Audio('assets/sound/207_Magic_Blue.wav'),
+		magicDud: new Audio('assets/sound/208_Magic_Dud.wav'),
+		magicGreen: new Audio('assets/sound/209_Magic_Green.wav'),
 	},
 	player: {
 		pos: {
@@ -482,6 +485,9 @@ function playerMagicForward() {
 	var tile = game.player.direction == "left" ? getTileLeft() : getTileRight();
 	if (!tile.blocking || tile.eraseable) {
 		game.player.state = "magicForward";
+		game.audio.magicBlue.play();
+	} else {
+		game.audio.magicDud.play();
 	}
 }
 function playerCrouchMagic() {
@@ -492,12 +498,18 @@ function playerCrouchMagic() {
 		game.player.animationStep = 0;
 		game.player.animationOffset = 0;
 		game.player.state = "crouchMagic";
+		game.audio.magicBlue.play();
+	} else {
+		game.audio.magicDud.play();
 	}
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
 	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic") {// && getTileBelow().name != "Blue Magic") {
 		game.player.state = "magicUp";
+		game.audio.magicGreen.play();
+	} else {
+		game.audio.magicDud.play();
 	}
 }
 function getCurrentTile() {
