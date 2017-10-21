@@ -608,7 +608,7 @@ window.addEventListener("keydown", function(e) {
 			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
 
-				if (game.keysDown.W && !getTileAbove().blocking) {
+				if (game.keysDown.W) {
 					playerMagicUp()
 				} else {
 					playerMagicForward();
