@@ -385,6 +385,8 @@ var game = {
 		magicBlue: new Audio('assets/sound/207_Magic_Blue.wav'),
 		magicDud: new Audio('assets/sound/208_Magic_Dud.wav'),
 		magicGreen: new Audio('assets/sound/209_Magic_Green.wav'),
+		gByeGreen: new Audio("assets/sound/211_G'bye_Greenwall.wav"),
+		gByeBlock: new Audio("assets/sound/214_G'bye_Block.wav")
 	},
 	player: {
 		pos: {
@@ -483,9 +485,23 @@ function playerMagicForward() {
 	console.log("playerMagicForward()")
 
 	var tile = game.player.direction == "left" ? getTileLeft() : getTileRight();
+
 	if (!tile.blocking || tile.eraseable) {
 		game.player.state = "magicForward";
-		game.audio.magicBlue.play();
+
+		switch (tile.name) {
+			case "Empty Space":
+				game.audio.magicBlue.play();
+				break;
+			case "Eraseable Star-wall":
+			case "Blue Magic":
+				game.audio.gByeBlock.play();
+				break;
+			case "Green Magic":
+				game.audio.gByeGreen.play();
+				break;
+		}
+
 	} else {
 		game.audio.magicDud.play();
 	}
@@ -498,7 +514,20 @@ function playerCrouchMagic() {
 		game.player.animationStep = 0;
 		game.player.animationOffset = 0;
 		game.player.state = "crouchMagic";
-		game.audio.magicBlue.play();
+		
+		switch (tile.name) {
+			case "Empty Space":
+				game.audio.magicBlue.play();
+				break;
+			case "Eraseable Star-wall":
+			case "Blue Magic":
+				game.audio.gByeBlock.play();
+				break;
+			case "Green Magic":
+				game.audio.gByeGreen.play();
+				break;
+		}
+
 	} else {
 		game.audio.magicDud.play();
 	}
