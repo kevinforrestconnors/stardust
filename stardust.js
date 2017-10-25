@@ -172,13 +172,15 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 
-				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
+				drawTile(3, Math.floor(game.player.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y);
+				drawHero(3 + Math.floor(game.player.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
 					game.player.animationOffset = 0;
 
-					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+					drawTile(1, 10, 11, game.player.pos.x + direction, game.player.pos.y);
+					drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + direction] = "0";
 					playerStand();
 					
@@ -189,8 +191,8 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + direction, game.player.pos.y);
-				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
+				drawTile(3, 10 - Math.floor(game.player.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y);
+				drawHero(3 + Math.floor(game.player.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
@@ -213,11 +215,11 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
  
-				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
+				drawHero(7 + Math.floor(game.player.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
 					playerCrouch();		
 
@@ -228,12 +230,12 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + direction, game.player.pos.y + 1);
-				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
+				drawTile(3, 2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + direction, game.player.pos.y + 1);
+				drawHero(7 + Math.floor(game.player.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "B";
 					playerCrouch();
 					
@@ -245,15 +247,15 @@ function updatePlayer(delta) {
 			game.player.animationStep++;
 			game.player.animationOffset = game.player.animationStep / 40;
 			
-			drawTile(3, 2, game.player.pos.x, game.player.pos.y);
-			drawHero(4, 4 + Math.floor(game.player.animationStep / 13), game.player.pos.x, game.player.pos.y - game.player.animationOffset);
+			drawTile(3, 11, 3, game.player.pos.x, game.player.pos.y);
+			drawHero(11 + Math.floor(game.player.animationStep / 9), 3, game.player.pos.x, game.player.pos.y - game.player.animationOffset);
 
 
 			if (game.player.animationStep == GLOBALS.magicDuration) {
 
 				game.levelState[game.player.pos.y][game.player.pos.x] = "G";
 				game.player.pos.y--;
-				drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 				playerStand();
 				
 			}		
