@@ -155,11 +155,11 @@ function updatePlayer(delta) {
 			game.player.animationStep++;
 
 			if (game.player.animationStep >= 1 && game.player.animationStep <= 5) { // Player has just entered crouch
-				drawHero(2, 6, game.player.pos.x, game.player.pos.y);
+				drawHero(8, 2, game.player.pos.x, game.player.pos.y);
 			} else if (game.player.animationStep >= 6 && game.player.animationStep <= 10) {
-				drawHero(2, 7, game.player.pos.x, game.player.pos.y);
+				drawHero(9, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+				drawHero(10, 2, game.player.pos.x, game.player.pos.y);
 			}
 
 		} else if (game.player.state == "magicForward") {
