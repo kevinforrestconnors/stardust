@@ -71,10 +71,10 @@ function updatePlayer(delta) {
 
 			if (getTileBelow().blocking) {
 				playerStand();
-				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
 				playerFall();
-				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 			}
 
 		} else if (game.player.state == "falling") {
@@ -94,7 +94,7 @@ function updatePlayer(delta) {
 
 			game.player.animationOffset = game.player.animationStep / 20;
 
-			drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+			drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 
 			// Gone down a square; switch based on where we are
 			if (game.player.animationStep == GLOBALS.fallDuration) {
@@ -103,7 +103,7 @@ function updatePlayer(delta) {
 				game.player.animationOffset = 0;
 				game.player.pos.y++;
 
-				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
 				if (game.player.pos.y > GLOBALS.gameHeight) {
 					deathByFalling();
@@ -118,7 +118,7 @@ function updatePlayer(delta) {
 
 			game.player.animationStep++;
 
-			drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+			drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
 			if (game.player.animationStep > 5) {
 				playerStand();
@@ -133,14 +133,14 @@ function updatePlayer(delta) {
 
 			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
+			drawHero(5 + game.player.animationStep % 3, 2, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset = 0;
 				game.player.pos.x += direction;
 
-				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
 				if (getTileBelow().blocking) {
 					playerStand();
@@ -609,7 +609,10 @@ function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	if (game.player.direction == "right") {
 		ctx.drawImage(GLOBALS.players, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 	} else {
-		ctx.drawImage(GLOBALS.players, (11 - tileX) * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+		ctx.translate((desX * sX)+sX, desY*sY);
+		ctx.scale(-1, 1);
+		ctx.drawImage(GLOBALS.players, tileX * sX, tileY * sY, sX, sY, 0, 0, sX, sY);
+		ctx.setTransform(1, 0, 0, 1, 0, 0)
 	}
 	
 }
