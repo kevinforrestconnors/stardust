@@ -244,10 +244,9 @@ function updatePlayer(delta) {
 
 			game.player.animationStep++;
 			game.player.animationOffset = game.player.animationStep / 40;
-			
-			drawTile(3, 11, 3, game.player.pos.x, game.player.pos.y);
-			drawHero(11 + Math.floor(game.player.animationStep / 9), 3, game.player.pos.x, game.player.pos.y - game.player.animationOffset);
 
+			ctx.drawImage(GLOBALS.tiles3, 0, 400, 40, game.player.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.player.animationOffset) * 40, 40, game.player.animationStep);
+			drawHero(11 + Math.floor(game.player.animationStep / 9), 3, game.player.pos.x, game.player.pos.y - game.player.animationOffset);
 
 			if (game.player.animationStep == GLOBALS.magicDuration) {
 
@@ -511,7 +510,7 @@ function playerMagicForward() {
 
 	var tile = game.player.direction == "left" ? getTileLeft() : getTileRight();
 
-	if (!tile.blocking || tile.eraseable) {
+	if (tile.eraseable || tile.name == "Empty Space") {
 		game.player.state = "magicForward";
 
 		switch (tile.name) {
@@ -535,7 +534,7 @@ function playerCrouchMagic() {
 
 	var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
 
-	if (!tile.blocking || tile.eraseable) {
+	if (tile.eraseable || tile.name == "Empty Space") {
 		game.player.animationStep = 0;
 		game.player.animationOffset = 0;
 		game.player.state = "crouchMagic";
@@ -559,7 +558,7 @@ function playerCrouchMagic() {
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
-	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic") {// && getTileBelow().name != "Blue Magic") {
+	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic" && (getCurrentTile().eraseable || getCurrentTile().name == "Empty Space")) {// && getTileBelow().name != "Blue Magic") {
 		game.player.state = "magicUp";
 		game.audio.magicGreen.play();
 	} else {
