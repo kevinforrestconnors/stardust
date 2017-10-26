@@ -18,6 +18,11 @@ var GLOBALS = {
 	walkDuration: 20,
 	fallDuration: 20,
 	magicDuration: 40,
+
+	tiles1: new Image(),
+	tiles2: new Image(),
+	tiles3: new Image(),
+	players: new Image()
 }
 
 function updatePlayer(delta) {
@@ -66,10 +71,10 @@ function updatePlayer(delta) {
 
 			if (getTileBelow().blocking) {
 				playerStand();
-				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
 				playerFall();
-				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 			}
 
 		} else if (game.player.state == "falling") {
@@ -89,7 +94,7 @@ function updatePlayer(delta) {
 
 			game.player.animationOffset = game.player.animationStep / 20;
 
-			drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+			drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 
 			// Gone down a square; switch based on where we are
 			if (game.player.animationStep == GLOBALS.fallDuration) {
@@ -98,7 +103,7 @@ function updatePlayer(delta) {
 				game.player.animationOffset = 0;
 				game.player.pos.y++;
 
-				drawHero(3, 0.2, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				
 				if (game.player.pos.y > GLOBALS.gameHeight) {
 					deathByFalling();
@@ -113,7 +118,7 @@ function updatePlayer(delta) {
 
 			game.player.animationStep++;
 
-			drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+			drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
 			if (game.player.animationStep > 5) {
 				playerStand();
@@ -128,14 +133,14 @@ function updatePlayer(delta) {
 
 			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
 
-			drawHero(0.1 * (game.player.animationStep % 9), game.player.animationStep % 9, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
+			drawHero(5 + game.player.animationStep % 3, 2, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
 
 			if (game.player.animationStep == GLOBALS.walkDuration) {
 				game.player.animationStep = 0;
 				game.player.animationOffset = 0;
 				game.player.pos.x += direction;
 
-				drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
 				if (getTileBelow().blocking) {
 					playerStand();
@@ -150,11 +155,11 @@ function updatePlayer(delta) {
 			game.player.animationStep++;
 
 			if (game.player.animationStep >= 1 && game.player.animationStep <= 5) { // Player has just entered crouch
-				drawHero(2, 6, game.player.pos.x, game.player.pos.y);
+				drawHero(8, 2, game.player.pos.x, game.player.pos.y);
 			} else if (game.player.animationStep >= 6 && game.player.animationStep <= 10) {
-				drawHero(2, 7, game.player.pos.x, game.player.pos.y);
+				drawHero(9, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+				drawHero(10, 2, game.player.pos.x, game.player.pos.y);
 			}
 
 		} else if (game.player.state == "magicForward") {
@@ -167,13 +172,13 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 
-				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
+				drawHero(3 + Math.floor(game.player.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
 					game.player.animationOffset = 0;
 
-					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+					drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + direction] = "0";
 					playerStand();
 					
@@ -184,8 +189,8 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + direction, game.player.pos.y);
-				drawHero(2, Math.floor(game.player.animationStep / 8), game.player.pos.x, game.player.pos.y);
+				drawTile(3, 10 - Math.floor(game.player.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y);
+				drawHero(3 + Math.floor(game.player.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 					game.player.animationStep = 0;
@@ -207,12 +212,12 @@ function updatePlayer(delta) {
 
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
- 
-				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
+ 				
+				drawHero(7 + Math.floor(game.player.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
 					playerCrouch();		
 
@@ -223,12 +228,12 @@ function updatePlayer(delta) {
 				game.player.animationStep++;
 				game.player.animationOffset = game.player.animationStep / 20;
 				
-				drawTile(2, 10 - Math.floor(game.player.animationStep / 8), game.player.pos.x + direction, game.player.pos.y + 1);
-				drawHero(4, Math.floor(game.player.animationStep / 10), game.player.pos.x, game.player.pos.y);
+				drawTile(3, 10 - Math.floor(game.player.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y + 1);
+				drawHero(7 + Math.floor(game.player.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.player.animationStep == GLOBALS.magicDuration) {
 
-					drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "B";
 					playerCrouch();
 					
@@ -239,16 +244,15 @@ function updatePlayer(delta) {
 
 			game.player.animationStep++;
 			game.player.animationOffset = game.player.animationStep / 40;
-			
-			drawTile(3, 2, game.player.pos.x, game.player.pos.y);
-			drawHero(4, 4 + Math.floor(game.player.animationStep / 13), game.player.pos.x, game.player.pos.y - game.player.animationOffset);
 
+			ctx.drawImage(GLOBALS.tiles3, 0, 400, 40, game.player.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.player.animationOffset) * 40, 40, game.player.animationStep);
+			drawHero(11 + Math.floor(game.player.animationStep / 9), 3, game.player.pos.x, game.player.pos.y - game.player.animationOffset);
 
 			if (game.player.animationStep == GLOBALS.magicDuration) {
 
 				game.levelState[game.player.pos.y][game.player.pos.x] = "G";
 				game.player.pos.y--;
-				drawHero(2, 8, game.player.pos.x, game.player.pos.y);
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 				playerStand();
 				
 			}		
@@ -290,8 +294,9 @@ var ctx = canvas.getContext("2d");
 var mapCodes = {
 	"0": {
 		name: "Empty Space",
-		spriteX: 0,
-		spriteY: 0,
+		spriteX: 10,
+		spriteY: 11,
+		tileNum: 1,
 		blocking: false,
 		eraseable: false,
 	},
@@ -299,34 +304,38 @@ var mapCodes = {
 		name: "Eraseable Star-wall",
 		spriteX: 2,
 		spriteY: 1,
+		tileNum: 1,
 		blocking: true,
 		eraseable: true,
 	},
 	"2": {
 		name: "Indestructible Star-wall",
 		spriteX: 1,
-		spriteY: 1,
+		spriteY: 3,
+		tileNum: 1,
 		blocking: true,
 		eraseable: false,
 	},
 	"3": {
 		name: "Entrance Portal",
-		spriteX: 3,
-		spriteY: 9,
+		spriteX: 10,
+		spriteY: 0,
+		tileNum: 1,
 		blocking: false,
 		eraseable: false,
 	},
 	"4": {
 		name: "Exit Portal",
-		spriteX: 3,
-		spriteY: 10,
+		spriteX: 10,
+		spriteY: 1,
+		tileNum: 1,
 		blocking: false,
 		eraseable: false,
 	},
 	"5": {
 		name: "Warp Pocket",
-		spriteX: "?",
-		spriteY: "?",
+		spriteX: 4,
+		spriteY: 3,
 		blocking: false,
 		eraseable: false,
 	},
@@ -334,30 +343,45 @@ var mapCodes = {
 
 	},
 	"7": {
-
+		name: "Starblock",
+		spriteX: 10,
+		spriteY: 2,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
 	},
 	"8": {
 
 	},
 	"B": {
 		name: "Blue Magic",
-		spriteX: 2,
-		spriteY: 6,
+		spriteX: 0,
+		spriteY: 8,
+		tileNum: 2,
 		blocking: true,
 		eraseable: true
 	},
 	"G": {
 		name: "Green Magic",
-		spriteX: 3,
-		spriteY: 3,
+		spriteX: 0,
+		spriteY: 10,
+		tileNum: 2,
 		blocking: true,
 		eraseable: true,
 	},
 	"!": {
-
+		name: "Left Wall",
+		spriteX: 1,
+		spriteY: 1,
+		blocking: true,
+		eraseable: false
 	},
 	"@": {
-
+		name: "Left Wall",
+		spriteX: 1,
+		spriteY: 1,
+		blocking: true,
+		eraseable: false
 	},
 	"#": {
 
@@ -486,7 +510,7 @@ function playerMagicForward() {
 
 	var tile = game.player.direction == "left" ? getTileLeft() : getTileRight();
 
-	if (!tile.blocking || tile.eraseable) {
+	if (tile.eraseable || tile.name == "Empty Space") {
 		game.player.state = "magicForward";
 
 		switch (tile.name) {
@@ -510,7 +534,7 @@ function playerCrouchMagic() {
 
 	var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
 
-	if (!tile.blocking || tile.eraseable) {
+	if (tile.eraseable || tile.name == "Empty Space") {
 		game.player.animationStep = 0;
 		game.player.animationOffset = 0;
 		game.player.state = "crouchMagic";
@@ -534,7 +558,7 @@ function playerCrouchMagic() {
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
-	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic") {// && getTileBelow().name != "Blue Magic") {
+	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic" && (getCurrentTile().eraseable || getCurrentTile().name == "Empty Space")) {// && getTileBelow().name != "Blue Magic") {
 		game.player.state = "magicUp";
 		game.audio.magicGreen.play();
 	} else {
@@ -569,18 +593,25 @@ function getTileBottomRight() {
 	if (game.player.pos.x >= GLOBALS.gameWidth - 1 || game.player.pos.y >= GLOBALS.gameHeight - 1) {return mapCodes["2"]}
 	return mapCodes[game.levelState[game.player.pos.y + 1][game.player.pos.x + 1]];
 }
-function drawTile(tileX, tileY, desX, desY, sX, sY) {
+function drawTile(tn, tileX, tileY, desX, desY, sX, sY) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
-	ctx.drawImage(sprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+	var tileNum;
+	if (tn == 1) {tileNum = GLOBALS.tiles1}
+	if (tn == 2) {tileNum = GLOBALS.tiles2}
+	if (tn == 3) {tileNum = GLOBALS.tiles3}
+	ctx.drawImage(tileNum, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 }
 function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
 	if (game.player.direction == "right") {
-		ctx.drawImage(playerSprite, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+		ctx.drawImage(GLOBALS.players, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 	} else {
-		ctx.drawImage(playerSprite, (11 - tileX) * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
+		ctx.translate((desX * sX)+sX, desY*sY);
+		ctx.scale(-1, 1);
+		ctx.drawImage(GLOBALS.players, tileX * sX, tileY * sY, sX, sY, 0, 0, sX, sY);
+		ctx.setTransform(1, 0, 0, 1, 0, 0)
 	}
 	
 }
@@ -595,8 +626,9 @@ function drawMap(map) {
 
 			var tileX = mapCodes[mapCode].spriteX;
 			var tileY = mapCodes[mapCode].spriteY;
+			var tileNum = mapCodes[mapCode].tileNum;
 
-			drawTile(tileX, tileY, j, i);
+			drawTile(tileNum, tileX, tileY, j, i);
 
 			if (mapCode == 3) { // Entrance Portal
 				var startingPos = {
@@ -612,21 +644,26 @@ function drawMap(map) {
 }
 	
 // Load Tiles
-var sprite = new Image();
-sprite.src = 'assets/img/XYTILES.JPG';
-var spriteLoaded = false;
-sprite.onload = function() {
-	spriteLoaded = true;
-}
 
-var playerSprite = new Image();
-playerSprite.src = 'assets/img/XYHERO.JPG'
-var playerLoaded = false;
-playerSprite.onload = function() {
-	playerLoaded = true;
-	if (spriteLoaded) {
-		startLevel();
-		main(0);
+GLOBALS.tiles1.src = 'assets/img/tiles1.png';
+
+GLOBALS.tiles1.onload = function() {
+
+	GLOBALS.tiles2 = new Image();
+	GLOBALS.tiles2.src = 'assets/img/tiles2.png';
+	GLOBALS.tiles2.onload = function() {
+
+		GLOBALS.tiles3 = new Image();
+		GLOBALS.tiles3.src = 'assets/img/tiles3.png';
+		GLOBALS.tiles3.onload = function() {
+			
+			GLOBALS.players = new Image();
+			GLOBALS.players.src = 'assets/img/players.png';
+			GLOBALS.players.onload = function() {
+				startLevel();
+				main(0);
+			}
+		}
 	}
 }
 
