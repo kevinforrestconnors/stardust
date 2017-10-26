@@ -63,8 +63,51 @@ function updatePlayer(delta) {
 		if (getCurrentTile().name == "Exit Portal" && getTileBelow().blocking) {
 			game.level++;
 			startLevel();
+		} else if (getCurrentTile().name == "Warp Pocket") {
+			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
+			deathByWarp();
 		}
 
+		if (getTileBelow().name == "Fallwall" && game.player.state != "falling") {
+
+			var pX = game.player.pos.x;
+			var pY = game.player.pos.y + 1;
+
+			var fw = {
+				posX: pX,
+				posY: pY,
+				animationStep: 0
+			}
+
+			var fallWallInArray = false;
+
+			for (var i = 0; i < game.fallWalls.length; i++) {
+				if (fw.posX == game.fallWalls[i].posX && fw.posY == game.fallWalls[i].posY) {
+					fallWallInArray = true;
+				}
+			}
+
+			if (!fallWallInArray) {
+				game.fallWalls.push(fw);
+			}
+		}
+
+		// Update all Fallwalls
+
+		var i = game.fallWalls.length;
+		while (i--) {
+
+			game.fallWalls[i].animationStep++;
+			drawTile(3, Math.floor(game.fallWalls[i].animationStep / 7), 7, game.fallWalls[i].posX, game.fallWalls[i].posY);
+
+			if (game.fallWalls[i].animationStep >= 60) {
+			 	game.levelState[game.fallWalls[i].posY][game.fallWalls[i].posX] = "0";
+			 	drawTile(1, 10, 11, game.fallWalls[i].posX, game.fallWalls[i].posY);
+				game.fallWalls.splice(i, 1);
+			}
+
+		}
+			
 		if (game.player.state == "dead") {
 			// Do Nothing
 		} else if (game.player.state == "standing") {
@@ -334,10 +377,11 @@ var mapCodes = {
 	},
 	"5": {
 		name: "Warp Pocket",
-		spriteX: 4,
-		spriteY: 3,
+		spriteX: 0,
+		spriteY: 4,
+		tileNum: 1,
 		blocking: false,
-		eraseable: false,
+		eraseable: true,
 	},
 	"6": {
 
@@ -351,7 +395,12 @@ var mapCodes = {
 		eraseable: false
 	},
 	"8": {
-
+		name: "Fallwall",
+		spriteX: 0,
+		spriteY: 7,
+		tileNum: 3,
+		blocking: true,
+		eraseable: false,
 	},
 	"B": {
 		name: "Blue Magic",
@@ -401,7 +450,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 1,
+	level: 17,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -410,7 +459,8 @@ var game = {
 		magicDud: new Audio('assets/sound/208_Magic_Dud.wav'),
 		magicGreen: new Audio('assets/sound/209_Magic_Green.wav'),
 		gByeGreen: new Audio("assets/sound/211_G'bye_Greenwall.wav"),
-		gByeBlock: new Audio("assets/sound/214_G'bye_Block.wav")
+		gByeBlock: new Audio("assets/sound/214_G'bye_Block.wav"),
+		warp: new Audio("assets/sound/215_Warp.wav"),
 	},
 	player: {
 		pos: {
@@ -420,7 +470,8 @@ var game = {
 		direction: "right",
 		state: "standing",
 		animationStep: 0,
-		animationOffset: 0
+		animationOffset: 0,
+		fallWallAnimationStep: 0,
 	},
 	keysDown: {
 		Space: false,
@@ -428,13 +479,29 @@ var game = {
 		A: false,
 		S: false, 
 		D: false
+	},
+	fallWalls: [], /* 
+	{	
+		posX:
+		posY:
+		animationStep:
 	}
+	*/
 }
 
 function deathByFalling() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
 	game.audio.deathByFalling.play();
+	setTimeout(function() {
+		GLOBALS.gameRunning = true;
+		startLevel();
+	}, 1300)
+}
+function deathByWarp() {
+	game.player.state = "dead";
+	GLOBALS.gameRunning = false;
+	game.audio.warp.play();
 	setTimeout(function() {
 		GLOBALS.gameRunning = true;
 		startLevel();
@@ -558,7 +625,10 @@ function playerCrouchMagic() {
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
-	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic" && (getCurrentTile().eraseable || getCurrentTile().name == "Empty Space")) {// && getTileBelow().name != "Blue Magic") {
+	if (!getTileAbove().blocking && 
+		getTileBelow().name != "Green Magic" && 
+		getTileAbove().name != "Warp Pocket" &&
+		getCurrentTile().name == "Empty Space") {
 		game.player.state = "magicUp";
 		game.audio.magicGreen.play();
 	} else {
