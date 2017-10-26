@@ -450,7 +450,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 17,
+	level: 1,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -507,6 +507,20 @@ function deathByWarp() {
 		startLevel();
 	}, 1300)
 }
+
+function cloneArrayOfArrays (existingArray) {
+   var newObj = (existingArray instanceof Array) ? [] : {};
+   for (i in existingArray) {
+      if (i == 'clone') continue;
+      if (existingArray[i] && typeof existingArray[i] == "object") {
+         newObj[i] = cloneArrayOfArrays(existingArray[i]);
+      } else {
+         newObj[i] = existingArray[i]
+      }
+   }
+   return newObj;
+}
+
 function startLevel() {
 
 	if (GLOBALS.gameRunning) {
@@ -514,7 +528,9 @@ function startLevel() {
 		game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
 		game.audio.beginLevel.play();
 		game.player.pos = drawMap(levels[game.level]);
-		game.levelState = levels[game.level].slice(0, levels[game.level].length);
+		console.log(levels[game.level])
+		game.levelState = cloneArrayOfArrays(levels[game.level]);
+		
 		game.player.state = "standing";
 		main(0);
 	}
