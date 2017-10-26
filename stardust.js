@@ -495,7 +495,9 @@ function deathByFalling() {
 	game.audio.deathByFalling.play();
 	setTimeout(function() {
 		GLOBALS.gameRunning = true;
-		startLevel();
+		game.player.pos = drawMap(levels[game.level]);
+		game.player.state = "standing";
+		main(0);
 	}, 1300)
 }
 function deathByWarp() {
@@ -504,7 +506,9 @@ function deathByWarp() {
 	game.audio.warp.play();
 	setTimeout(function() {
 		GLOBALS.gameRunning = true;
-		startLevel();
+		game.player.pos = drawMap(levels[game.level]);
+		game.player.state = "standing";
+		main(0);
 	}, 1300)
 }
 
@@ -528,9 +532,7 @@ function startLevel() {
 		game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
 		game.audio.beginLevel.play();
 		game.player.pos = drawMap(levels[game.level]);
-		console.log(levels[game.level])
 		game.levelState = cloneArrayOfArrays(levels[game.level]);
-		
 		game.player.state = "standing";
 		main(0);
 	}
