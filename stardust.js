@@ -101,9 +101,9 @@ function updatePlayer(delta) {
 		while (i--) {
 
 			game.fallWalls[i].animationStep++;
-			drawTile(3, Math.floor(game.fallWalls[i].animationStep / 7), 7, game.fallWalls[i].posX, game.fallWalls[i].posY);
+			drawTile(3, Math.floor(game.fallWalls[i].animationStep / 8), 7, game.fallWalls[i].posX, game.fallWalls[i].posY);
 
-			if (game.fallWalls[i].animationStep >= 60) {
+			if (game.fallWalls[i].animationStep >= 80) {
 			 	game.levelState[game.fallWalls[i].posY][game.fallWalls[i].posX] = "0";
 			 	drawTile(1, 10, 11, game.fallWalls[i].posX, game.fallWalls[i].posY);
 				game.fallWalls.splice(i, 1);
@@ -460,7 +460,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 27,
+	level: 28,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -509,7 +509,7 @@ function deathByFalling() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
 	game.audio.deathByFalling.play(); 
-	setTimeout(function() {
+	GLOBALS.returnToStart = setTimeout(function() {
 		returnToStart();
 	}, 1300)
 }
@@ -517,7 +517,7 @@ function deathByWarp() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
 	game.audio.warp.play();
-	setTimeout(function() {
+	GLOBALS.returnToStart = setTimeout(function() {
 		returnToStart();
 	}, 1300)
 }
@@ -529,15 +529,15 @@ function deathByCoals() {
 	drawHero(3, 4, game.player.pos.x, game.player.pos.y);
 
 	var i = 0;
-	var animateDeath = setInterval(function() {
+	GLOBALS.animateDeath = setInterval(function() {
 		drawMap(game.levelState)
 		drawHero(3 + i, 4, game.player.pos.x, game.player.pos.y);
 		console.log(i)
 		i++;
 	}, 150);
 
-	setTimeout(function() {
-		clearInterval(animateDeath);
+	GLOBALS.returnToStart = setTimeout(function() {
+		clearInterval(GLOBALS.animateDeath);
 		returnToStart();
 	}, 2100);
 
@@ -557,15 +557,16 @@ function cloneArrayOfArrays (existingArray) {
 
 function startLevel() {
 
-	if (GLOBALS.gameRunning) {
-		game.audio.beginLevel.pause();
-		game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
-		game.audio.beginLevel.play();
-		game.player.pos = drawMap(levels[game.level]);
-		game.levelState = cloneArrayOfArrays(levels[game.level]);
-		game.player.state = "standing";
-		main(0);
-	}
+	clearInterval(GLOBALS.animateDeath);
+	clearTimeout(GLOBALS.returnToStart);
+	GLOBALS.gameRunning = true;
+	game.audio.beginLevel.pause();
+	game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
+	game.audio.beginLevel.play();
+	game.player.pos = drawMap(levels[game.level]);
+	game.levelState = cloneArrayOfArrays(levels[game.level]);
+	game.player.state = "standing";
+	main(0);
 }
 function playerFall() {
 	console.log("playerFall()")
