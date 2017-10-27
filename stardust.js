@@ -119,8 +119,12 @@ function updatePlayer(delta) {
 				playerStand();
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				playerFall();
-				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall")) {
+					playerFall();	
+					drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				} else { // We are inside a wall
+					drawHero(5, 2, game.player.pos.x, game.player.pos.y); 
+				}	
 			}
 
 		} else if (game.player.state == "falling") {
@@ -191,7 +195,7 @@ function updatePlayer(delta) {
 				}
 
 				if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
-					playerWalk();
+					playerStand();
 				}
 				
 			}
@@ -460,7 +464,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 28,
+	level: 27,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -532,7 +536,6 @@ function deathByCoals() {
 	GLOBALS.animateDeath = setInterval(function() {
 		drawMap(game.levelState)
 		drawHero(3 + i, 4, game.player.pos.x, game.player.pos.y);
-		console.log(i)
 		i++;
 	}, 150);
 
