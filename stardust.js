@@ -450,7 +450,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 1,
+	level: 19,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -488,16 +488,18 @@ var game = {
 	}
 	*/
 }
-
+function returnToStart() { // only called after deaths
+		GLOBALS.gameRunning = true;
+		game.player.pos = drawMap(levels[game.level]);
+		game.player.state = "standing";
+		main(0);
+}
 function deathByFalling() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
 	game.audio.deathByFalling.play();
 	setTimeout(function() {
-		GLOBALS.gameRunning = true;
-		game.player.pos = drawMap(levels[game.level]);
-		game.player.state = "standing";
-		main(0);
+		returnToStart();
 	}, 1300)
 }
 function deathByWarp() {
@@ -505,10 +507,7 @@ function deathByWarp() {
 	GLOBALS.gameRunning = false;
 	game.audio.warp.play();
 	setTimeout(function() {
-		GLOBALS.gameRunning = true;
-		game.player.pos = drawMap(levels[game.level]);
-		game.player.state = "standing";
-		main(0);
+		returnToStart();
 	}, 1300)
 }
 
@@ -551,7 +550,7 @@ function playerTurn() {
 	if (game.player.state == "standing") {
 		if (game.player.direction == "left") {
 			if (game.keysDown.A) {
-				if (!getTileLeft().blocking) {
+				if (!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) {
 					game.player.state = "walking";
 				} else {
 					game.player.state = "standing"
@@ -562,7 +561,7 @@ function playerTurn() {
 			}
  		} else {
  			if (game.keysDown.D) {
-				if (!getTileRight().blocking) {
+				if (!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) {
 					game.player.state = "walking";
 				} else {
 					game.player.state = "standing"
@@ -577,11 +576,11 @@ function playerTurn() {
 function playerWalk() {
 
 	if (game.player.direction == "left")  {
-		if (!getTileLeft().blocking) {
+		if (!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) {
 			game.player.state = "walking";
 		}
 	} else {
-		if (!getTileRight().blocking) {
+		if (!getTileRight().blocking && !(getTileLeft().name == "Warp Pocket")) {
 			game.player.state = "walking";
 		}
 	}
