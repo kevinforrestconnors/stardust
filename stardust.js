@@ -66,8 +66,11 @@ function updatePlayer(delta) {
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
 			deathByWarp();
+		} else if (getTileBelow().name == "Hot Coals") {
+			deathByCoals();
 		}
 
+		// Check if player has stepped on a Fallwall
 		if (getTileBelow().name == "Fallwall" && game.player.state != "falling") {
 
 			var pX = game.player.pos.x;
@@ -384,7 +387,12 @@ var mapCodes = {
 		eraseable: true,
 	},
 	"6": {
-
+		name: "Hot Coals",
+		spriteX: 0,
+		spriteY: 6,
+		tileNum: 1,
+		blocking: true,
+		eraseable: false,
 	},
 	"7": {
 		name: "Starblock",
@@ -450,11 +458,12 @@ var mapCodes = {
 }
 
 var game = {
-	level: 19,
+	level: 22,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
 		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav'),
+		deathByCoals: new Audio('assets/sound/206_Death_by_Coals.wav'),
 		magicBlue: new Audio('assets/sound/207_Magic_Blue.wav'),
 		magicDud: new Audio('assets/sound/208_Magic_Dud.wav'),
 		magicGreen: new Audio('assets/sound/209_Magic_Green.wav'),
@@ -497,7 +506,7 @@ function returnToStart() { // only called after deaths
 function deathByFalling() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
-	game.audio.deathByFalling.play();
+	game.audio.deathByFalling.play(); 
 	setTimeout(function() {
 		returnToStart();
 	}, 1300)
@@ -510,7 +519,27 @@ function deathByWarp() {
 		returnToStart();
 	}, 1300)
 }
+function deathByCoals() {
+	game.player.state = "dead";
+	GLOBALS.gameRunning = false;
+	game.audio.deathByCoals.play();
 
+	drawHero(3, 4, game.player.pos.x, game.player.pos.y);
+
+	var i = 0;
+	var animateDeath = setInterval(function() {
+		drawMap(game.levelState)
+		drawHero(3 + i, 4, game.player.pos.x, game.player.pos.y);
+		console.log(i)
+		i++;
+	}, 150);
+
+	setTimeout(function() {
+		clearInterval(animateDeath);
+		returnToStart();
+	}, 2100);
+
+}
 function cloneArrayOfArrays (existingArray) {
    var newObj = (existingArray instanceof Array) ? [] : {};
    for (i in existingArray) {
@@ -528,7 +557,7 @@ function startLevel() {
 
 	if (GLOBALS.gameRunning) {
 		game.audio.beginLevel.pause();
-		game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
+		game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
 		game.audio.beginLevel.play();
 		game.player.pos = drawMap(levels[game.level]);
 		game.levelState = cloneArrayOfArrays(levels[game.level]);
@@ -758,6 +787,7 @@ window.addEventListener("keydown", function(e) {
 
 	switch(e.keyCode) {
 		case 32: // Spacebar
+		case 13: // Enter
 			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
 
@@ -800,6 +830,7 @@ window.addEventListener("keydown", function(e) {
 			game.keysDown.W = true;
 			break;
 		case 82: // R (restart the level)
+		case 88: // X
 			startLevel();
 			break;
 	}
