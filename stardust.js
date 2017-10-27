@@ -125,10 +125,6 @@ function updatePlayer(delta) {
 
 		} else if (game.player.state == "falling") {
 
-			if (getCurrentTile().blocking) {
-				console.error("This shouldn't happen!")
-			}
-
 			 /* Can change direction mid-air */
 			 if (game.keysDown.A) {
 			 	game.player.direction = "left";
@@ -192,6 +188,10 @@ function updatePlayer(delta) {
 					playerStand();
 				} else {
 					playerFall();
+				}
+
+				if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
+					playerWalk();
 				}
 				
 			}
@@ -429,14 +429,16 @@ var mapCodes = {
 	"!": {
 		name: "Left Wall",
 		spriteX: 1,
-		spriteY: 1,
+		spriteY: 10,
+		tileNum: 1,
 		blocking: true,
 		eraseable: false
 	},
 	"@": {
-		name: "Left Wall",
-		spriteX: 1,
-		spriteY: 1,
+		name: "Right Wall",
+		spriteX: 0,
+		spriteY: 0,
+		tileNum: 2,
 		blocking: true,
 		eraseable: false
 	},
@@ -458,7 +460,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 22,
+	level: 27,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -579,7 +581,7 @@ function playerTurn() {
 	if (game.player.state == "standing") {
 		if (game.player.direction == "left") {
 			if (game.keysDown.A) {
-				if (!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) {
+				if ((!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) || getTileLeft().name == "Left Wall") {
 					game.player.state = "walking";
 				} else {
 					game.player.state = "standing"
@@ -590,7 +592,7 @@ function playerTurn() {
 			}
  		} else {
  			if (game.keysDown.D) {
-				if (!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) {
+				if ((!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) || getTileRight().name == "Right Wall") {
 					game.player.state = "walking";
 				} else {
 					game.player.state = "standing"
@@ -605,11 +607,13 @@ function playerTurn() {
 function playerWalk() {
 
 	if (game.player.direction == "left")  {
-		if (!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) {
+
+		if ((!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) || getTileLeft().name == "Left Wall") {
 			game.player.state = "walking";
 		}
 	} else {
-		if (!getTileRight().blocking && !(getTileLeft().name == "Warp Pocket")) {
+
+		if ((!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) || getTileRight().name == "Right Wall") {
 			game.player.state = "walking";
 		}
 	}
