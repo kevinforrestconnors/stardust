@@ -1,6 +1,6 @@
 var GLOBALS = {
 
-	gameRunning: true,
+	gameRunning: false,
 	gameWidth: 16,
 	gameHeight: 12,
 
@@ -22,7 +22,16 @@ var GLOBALS = {
 	tiles1: new Image(),
 	tiles2: new Image(),
 	tiles3: new Image(),
-	players: new Image()
+	players: new Image(),
+	main: new Image(),
+	about: new Image(),
+	instructions: new Image(),
+
+	imagesLoaded: false,
+
+	mainShowing: true,
+	aboutShowing: false,
+	instructionsShowing: false,
 }
 
 function updatePlayer(delta) {
@@ -62,6 +71,7 @@ function updatePlayer(delta) {
 
 		if (getCurrentTile().name == "Exit Portal" && getTileBelow().blocking) {
 			game.level++;
+			localStorage.setItem('level', game.level);
 			startLevel();
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
@@ -447,10 +457,20 @@ var mapCodes = {
 		eraseable: false
 	},
 	"#": {
-
+		"name": "Elevator",
+		spriteX: 0,
+		spriteY: 2,
+		tileNum: 2,
+		blocking: false,
+		eraseable: false
 	}, 
 	"$": {
-
+		name: "Tunnel",
+		spriteX: 0,
+		spriteY: 4,
+		tileNum: 2,
+		blocking: false,
+		eraseable: false,
 	},
 	"(": {
 
@@ -464,7 +484,7 @@ var mapCodes = {
 }
 
 var game = {
-	level: 27,
+	level: 1,
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
@@ -559,17 +579,19 @@ function cloneArrayOfArrays (existingArray) {
 }
 
 function startLevel() {
-
 	clearInterval(GLOBALS.animateDeath);
 	clearTimeout(GLOBALS.returnToStart);
-	GLOBALS.gameRunning = true;
+	clearTimeout(GLOBALS.weirdTimingBug);
 	game.audio.beginLevel.pause();
 	game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
 	game.audio.beginLevel.play();
-	game.player.pos = drawMap(levels[game.level]);
+	game.player.pos = drawMap(levels[game.level]); 
 	game.levelState = cloneArrayOfArrays(levels[game.level]);
 	game.player.state = "standing";
 	main(0);
+	GLOBALS.weirdTimingBug = setTimeout(function() {
+		GLOBALS.gameRunning = true;
+	}, 200);
 }
 function playerFall() {
 	console.log("playerFall()")
@@ -773,25 +795,113 @@ GLOBALS.tiles1.src = 'assets/img/tiles1.png';
 
 GLOBALS.tiles1.onload = function() {
 
-	GLOBALS.tiles2 = new Image();
 	GLOBALS.tiles2.src = 'assets/img/tiles2.png';
 	GLOBALS.tiles2.onload = function() {
 
-		GLOBALS.tiles3 = new Image();
 		GLOBALS.tiles3.src = 'assets/img/tiles3.png';
 		GLOBALS.tiles3.onload = function() {
 			
-			GLOBALS.players = new Image();
 			GLOBALS.players.src = 'assets/img/players.png';
 			GLOBALS.players.onload = function() {
-				startLevel();
-				main(0);
+
+				GLOBALS.main.src = 'assets/img/main.png';
+				GLOBALS.main.onload = function() {
+
+					GLOBALS.about.src = 'assets/img/about.png';
+					GLOBALS.about.onload = function() {
+
+						GLOBALS.instructions.src = 'assets/img/instructions.png';
+						GLOBALS.instructions.onload = function() {
+
+							ctx.drawImage(GLOBALS.main, 0, 0)
+
+						}
+					}
+				}
 			}
 		}
 	}
 }
 
+function addPointerCSS() {
+	if (!document.getElementById("game").classList.contains("menu-option-hovered")) {
+		document.getElementById("game").classList.add("menu-option-hovered");
+	};
+}
+
+function removePointerCSS() {
+	document.getElementById("game").classList.remove("menu-option-hovered");
+}
+
+window.addEventListener("mousemove", function(e) {
+		
+	var px = e.clientX / window.innerWidth;
+	var py = e.clientY / window.innerHeight;
+
+	if (GLOBALS.mainShowing) {
+		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) {
+			addPointerCSS()
+		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) {
+			addPointerCSS();
+		} else if (px > 0.25 && px < 0.46 && py > 0.70 && py < 0.78) {
+			addPointerCSS();
+		} else if (px > 0.56 && px < 0.73 && py > 0.70 && py < 0.78) {
+			addPointerCSS();
+		} else {
+			removePointerCSS();
+		}
+	} else if (GLOBALS.aboutShowing) {
+		addPointerCSS();
+	} else if (GLOBALS.instructionsShowing) {
+		addPointerCSS();
+	}
+
+});
+
+window.addEventListener("click", function(e) {
+		
+	var px = e.clientX / window.innerWidth;
+	var py = e.clientY / window.innerHeight;
+
+
+	if (GLOBALS.mainShowing) {
+		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
+			startLevel();
+		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
+			var level = localStorage.getItem('level');
+			game.level = level;
+			startLevel();
+		} else if (px > 0.25 && px < 0.46 && py > 0.70 && py < 0.78) { // About
+			GLOBALS.mainShowing = false;
+			GLOBALS.aboutShowing = true;
+			ctx.drawImage(GLOBALS.about, 0, 0);
+		} else if (px > 0.56 && px < 0.73 && py > 0.70 && py < 0.78) { // Help
+				GLOBALS.mainShowing = false;
+			GLOBALS.instructionsShowing = true;
+			ctx.drawImage(GLOBALS.instructions, 0, 0);
+		} else {
+			removePointerCSS();
+		}
+	} else if (GLOBALS.aboutShowing) {
+		GLOBALS.mainShowing = true;
+		GLOBALS.aboutShowing = false;
+		ctx.drawImage(GLOBALS.main, 0, 0);
+	} else if (GLOBALS.instructionsShowing) {
+		GLOBALS.mainShowing = true;
+		GLOBALS.instructionsShowing = false;
+		ctx.drawImage(GLOBALS.main, 0, 0);
+	}
+
+	
+});
+
 window.addEventListener("keydown", function(e) {
+
+	// if (GLOBALS.instructionsShowing && GLOBALS.imagesLoaded) {
+	// 	GLOBALS.instructionsShowing = false;
+	// 	startLevel();
+	// 	return;
+	// }
 
 	switch(e.keyCode) {
 		case 32: // Spacebar
