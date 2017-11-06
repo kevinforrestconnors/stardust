@@ -71,7 +71,9 @@ function updatePlayer(delta) {
 
 		if (getCurrentTile().name == "Exit Portal" && getTileBelow().blocking) {
 			game.level++;
-			localStorage.setItem('level', game.level);
+			if (localStorage.getItem('level') < game.level) {
+				localStorage.setItem('level', game.level);	
+			}
 			startLevel();
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
