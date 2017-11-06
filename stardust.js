@@ -150,7 +150,7 @@ function updatePlayer(delta) {
 				playerStand();
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall" || getCurrentTile().name == "Tunnel")) {
+				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall" || getCurrentTile().name == "Tunnel" || getTileBelow().name == "Elevator")) {
 					playerFall();	
 					drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.anims.animationOffset);
 				} else { // We are inside a wall
@@ -158,6 +158,43 @@ function updatePlayer(delta) {
 				}	
 			}
 
+		} else if (game.player.state == "rising") {
+
+			/* Can change direction mid-air */
+			 if (game.keysDown.A) {
+			 	game.player.direction = "left";
+			 } else if (game.keysDown.D) {
+			 	game.player.direction = "right";
+			 }
+			
+			game.anims.animationStep++;
+
+			game.anims.animationOffset = game.anims.animationStep / 20;
+
+			drawHero(1, 3, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+
+			// Gone up a square; switch based on where we are
+			if (game.anims.animationStep == GLOBALS.fallDuration) {
+
+				game.anims.animationStep = 0;
+				game.anims.animationOffset = 0;
+
+				game.player.pos.y--;
+
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+				
+				if (getCurrentTile().name == "Elevator") {
+					
+					if (getTileAbove().blocking) {
+						game.levelState[game.player.pos.y][game.player.pos.x] = "0";
+						playerStand();
+					} else {
+						playerRise();	
+					}
+				} else {
+					playerStand();
+				}
+			}
 		} else if (game.player.state == "falling") {
 
 			 /* Can change direction mid-air */
@@ -178,6 +215,7 @@ function updatePlayer(delta) {
 
 				game.anims.animationStep = 0;
 				game.anims.animationOffset = 0;
+
 				game.player.pos.y++;
 
 				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.anims.animationOffset);
@@ -219,14 +257,18 @@ function updatePlayer(delta) {
 
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
-				if (getTileBelow().blocking || getCurrentTile().name == "Tunnel") {
+				if (getTileBelow().blocking || getCurrentTile().name == "Tunnel" || getTileBelow().name == "Elevator") {
 					playerStand();
 				} else {
 					playerFall();
 				}
 
-				if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
-					playerStand();
+				// if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
+				// 	playerStand();
+				// }
+
+				if (getCurrentTile().name == "Elevator") {
+					playerRise();
 				}
 				
 			}
@@ -305,10 +347,9 @@ function updatePlayer(delta) {
 
 					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
-					
-					if (getTileBelow().blocking) {
-						playerCrouch();
-					} else {
+					playerCrouch(); 
+
+					if (tile.name == "Green Magic" && direction == 0) {
 						playerStand();
 						playerFall();			
 					}
@@ -628,8 +669,12 @@ function startLevel() {
 		GLOBALS.gameRunning = true;
 	}, 200);
 }
+function playerRise() {
+	console.log("playerRise()");
+	game.player.state = "rising";
+}
 function playerFall() {
-	console.log("playerFall()")
+	console.log("playerFall()");
 	game.player.state = "falling";
 }
 function playerStand() {
@@ -911,7 +956,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 20;
+			game.level = 40;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
