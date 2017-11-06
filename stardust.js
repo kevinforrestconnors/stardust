@@ -131,7 +131,7 @@ function updatePlayer(delta) {
 				playerStand();
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall")) {
+				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall" || getCurrentTile().name == "Tunnel")) {
 					playerFall();	
 					drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
 				} else { // We are inside a wall
@@ -200,7 +200,7 @@ function updatePlayer(delta) {
 
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
-				if (getTileBelow().blocking) {
+				if (getTileBelow().blocking || getCurrentTile().name == "Tunnel") {
 					playerStand();
 				} else {
 					playerFall();
@@ -869,7 +869,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 1;
+			game.level = 32;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
