@@ -289,6 +289,11 @@ function updatePlayer(delta) {
 			var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
 			var direction = game.player.direction == "left" ? -1 : 1
 
+			if (getTileBelow().name == "Green Magic") {
+				tile = getTileBelow();
+				direction = 0;
+			}
+
 			if (tile.eraseable) {
 
 				game.anims.animationStep++;
@@ -300,7 +305,13 @@ function updatePlayer(delta) {
 
 					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
-					playerCrouch();		
+					
+					if (getTileBelow().blocking) {
+						playerCrouch();
+					} else {
+						playerStand();
+						playerFall();			
+					}
 
 				}
 
@@ -700,6 +711,14 @@ function playerMagicForward() {
 function playerCrouchMagic() {
 
 	var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
+
+	if (getTileBelow().name == "Green Magic") {
+		game.anims.animationStep = 0;
+		game.anims.animationOffset = 0;
+		game.player.state = "crouchMagic";
+		game.audio.gByeGreen.play();
+		return;
+	}
 
 	if (tile.eraseable || tile.name == "Empty Space") {
 		game.anims.animationStep = 0;
