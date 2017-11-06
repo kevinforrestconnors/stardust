@@ -866,8 +866,11 @@ window.addEventListener("click", function(e) {
 
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
+			GLOBALS.mainShowing = false;
+			game.level = 1;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
+			GLOBALS.mainShowing = false;
 			var level = localStorage.getItem('level');
 			game.level = level;
 			startLevel();
@@ -904,6 +907,11 @@ window.addEventListener("keydown", function(e) {
 	// }
 
 	switch(e.keyCode) {
+		case 27: // ESC
+			GLOBALS.gameRunning = false;
+			GLOBALS.mainShowing = true;
+			ctx.drawImage(GLOBALS.main, 0, 0);
+			break;
 		case 32: // Spacebar
 		case 13: // Enter
 			e.preventDefault(); // prevent spacebar scroll
