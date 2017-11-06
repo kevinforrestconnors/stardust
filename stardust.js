@@ -747,6 +747,7 @@ function playerMagicUp() {
 	if (!getTileAbove().blocking && 
 		getTileBelow().name != "Green Magic" && 
 		getTileAbove().name != "Warp Pocket" &&
+		getTileAbove().name != "Entrance Portal" &&
 		getCurrentTile().name == "Empty Space") {
 		game.player.state = "magicUp";
 		game.audio.magicGreen.play();
