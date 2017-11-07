@@ -1058,21 +1058,22 @@ function drawMap(map) {
 	
 // Load Tiles
 
-GLOBALS.tiles1.src = 'assets/img/tiles1.png';
+GLOBALS.main.src = 'assets/img/main.png';
+GLOBALS.main.onload = function() {
 
-GLOBALS.tiles1.onload = function() {
+	ctx.drawImage(GLOBALS.main, 0, 0)
 
-	GLOBALS.tiles2.src = 'assets/img/tiles2.png';
-	GLOBALS.tiles2.onload = function() {
+	GLOBALS.tiles1.src = 'assets/img/tiles1.png';
+	GLOBALS.tiles1.onload = function() {
 
-		GLOBALS.tiles3.src = 'assets/img/tiles3.png';
-		GLOBALS.tiles3.onload = function() {
+		GLOBALS.tiles2.src = 'assets/img/tiles2.png';
+		GLOBALS.tiles2.onload = function() {
+
+			GLOBALS.tiles3.src = 'assets/img/tiles3.png';
+			GLOBALS.tiles3.onload = function() {
 			
-			GLOBALS.players.src = 'assets/img/players.png';
-			GLOBALS.players.onload = function() {
-
-				GLOBALS.main.src = 'assets/img/main.png';
-				GLOBALS.main.onload = function() {
+				GLOBALS.players.src = 'assets/img/players.png';
+				GLOBALS.players.onload = function() {
 
 					GLOBALS.about.src = 'assets/img/about.png';
 					GLOBALS.about.onload = function() {
@@ -1134,7 +1135,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 26;
+			game.level = 1;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
