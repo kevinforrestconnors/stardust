@@ -71,6 +71,30 @@ function updatePlayer(delta) {
 			}
 		}
 
+		if (getCurrentTile().name == "Victory Square") {
+			GLOBALS.gameRunning = false;
+
+			var xOffset = 0;
+			var yOffset = 0;
+
+			GLOBALS.animateVictory = setInterval(function() {
+				drawTile(1, 11 + xOffset, yOffset, game.player.pos.x - 1, game.player.pos.y);
+				drawTile(1, 12 + xOffset, yOffset, game.player.pos.x, game.player.pos.y);
+
+				yOffset++;
+
+				if (yOffset > 11) {
+					yOffset = 0;
+					xOffset += 2;
+					if (xOffset == 4) {
+						clearInterval(GLOBALS.animateVictory);
+						ctx.drawImage(GLOBALS.victory, 0, 0);
+						GLOBALS.victoryShowing = true;
+					}
+				}
+			}, 100);
+		}
+
 		if (getCurrentTile().name == "Exit Portal" && getTileBelow().blocking) {
 			game.level++;
 			if (localStorage.getItem('level') < game.level) {
@@ -1186,7 +1210,7 @@ window.addEventListener("click", function(e) {
 			GLOBALS.aboutShowing = true;
 			ctx.drawImage(GLOBALS.about, 0, 0);
 		} else if (px > 0.56 && px < 0.73 && py > 0.70 && py < 0.78) { // Help
-				GLOBALS.mainShowing = false;
+			GLOBALS.mainShowing = false;
 			GLOBALS.instructionsShowing = true;
 			ctx.drawImage(GLOBALS.instructions, 0, 0);
 		} else {
@@ -1203,6 +1227,7 @@ window.addEventListener("click", function(e) {
 	} else if (GLOBALS.victoryShowing) {
 		GLOBALS.mainShowing = true;
 		GLOBALS.victoryShowing = false;
+		ctx.drawImage(GLOBALS.main, 0, 0);
 	}
 
 	
