@@ -78,7 +78,9 @@ function updatePlayer(delta) {
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
 			deathByWarp();
-		} else if (getTileBelow().name == "Hot Coals") {
+		}
+
+		if (getTileBelow().name == "Hot Coals") {
 			deathByCoals();
 		}
 
@@ -220,6 +222,26 @@ function updatePlayer(delta) {
 
 				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.anims.animationOffset);
 				
+				if (getCurrentTile().name == "Teleporter") {
+
+					var pX = game.player.pos.x;
+					var pY = game.player.pos.y;
+
+					var nextY = pY + 1;
+
+					while (game.levelState[nextY][pX] != "%") {
+						nextY++;
+						if (nextY >= 12) {
+							nextY = 0;
+						}
+					}
+
+					game.player.pos.y = nextY;
+					playerStand();
+					return;
+						
+				}
+
 				if (game.player.pos.y > GLOBALS.gameHeight) {
 					deathByFalling();
 				} else if (getTileBelow().blocking) {
@@ -263,16 +285,27 @@ function updatePlayer(delta) {
 					playerFall();
 				}
 
-				// if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
-				// 	playerStand();
-				// }
-
 				if (getCurrentTile().name == "Elevator") {
 					playerRise();
-				}
-				
-			}
+				} else if (getCurrentTile().name == "Teleporter") {
 
+					var pX = game.player.pos.x;
+					var pY = game.player.pos.y;
+
+					var nextY = pY + 1;
+
+					while (game.levelState[nextY][pX] != "%") {
+						nextY++;
+						if (nextY >= 12) {
+							nextY = 0;
+						}
+					}
+
+					game.player.pos.y = nextY;
+					playerStand();
+						
+				}
+			}
 		} else if (game.player.state == "crouching") {
 
 			game.anims.animationStep++;
@@ -294,6 +327,18 @@ function updatePlayer(delta) {
 
 				game.anims.animationStep++;
 				game.anims.animationOffset = game.anims.animationStep / 20;
+
+				switch (tile.name) {
+					case "Blue Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 4, game.player.pos.x + direction, game.player.pos.y);
+						break;
+					case "Eraseable Star-wall":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y);
+						break;
+					case "Green Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 10, game.player.pos.x + direction, game.player.pos.y);
+						break;
+				}
 
 				drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
@@ -337,6 +382,18 @@ function updatePlayer(delta) {
 			}
 
 			if (tile.eraseable) {
+
+				switch (tile.name) {
+					case "Blue Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 4, game.player.pos.x + direction, game.player.pos.y + 1);
+						break;
+					case "Eraseable Star-wall":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y + 1);
+						break;
+					case "Green Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 10, game.player.pos.x + direction, game.player.pos.y + 1);
+						break;
+				}
 
 				game.anims.animationStep++;
 				game.anims.animationOffset = game.anims.animationStep / 20;
@@ -389,6 +446,21 @@ function updatePlayer(delta) {
 				playerStand();
 				
 			}		
+		} else if (game.player.state == "magicUpErase") {
+
+			game.anims.animationStep++;
+			game.anims.animationOffset = game.anims.animationStep / 40;
+
+			drawTile(3, Math.floor(game.anims.animationStep / 9), 10, game.player.pos.x, game.player.pos.y - 1);
+			drawHero(11 + Math.floor(game.anims.animationStep / 9), 3, game.player.pos.x, game.player.pos.y);
+
+			if (game.anims.animationStep == GLOBALS.magicDuration) {
+
+				game.levelState[game.player.pos.y - 1][game.player.pos.x] = "0";
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
+				playerStand();
+				
+			}		
 		}
 }
 
@@ -435,9 +507,9 @@ var mapCodes = {
 	},
 	"1": {
 		name: "Eraseable Star-wall",
-		spriteX: 2,
-		spriteY: 1,
-		tileNum: 1,
+		spriteX: 0,
+		spriteY: 9,
+		tileNum: 3,
 		blocking: true,
 		eraseable: true,
 	},
@@ -500,8 +572,8 @@ var mapCodes = {
 	"B": {
 		name: "Blue Magic",
 		spriteX: 0,
-		spriteY: 8,
-		tileNum: 2,
+		spriteY: 4,
+		tileNum: 3,
 		blocking: true,
 		eraseable: true
 	},
@@ -509,7 +581,7 @@ var mapCodes = {
 		name: "Green Magic",
 		spriteX: 0,
 		spriteY: 10,
-		tileNum: 2,
+		tileNum: 3,
 		blocking: true,
 		eraseable: true,
 	},
@@ -552,7 +624,12 @@ var mapCodes = {
 
 	},
 	"%": {
-
+		name: "Teleporter",
+		spriteX: 0,
+		spriteY: 6,
+		tileNum: 2,
+		blocking: false,
+		eraseable: false
 	}
 }
 
@@ -766,9 +843,6 @@ function playerCrouchMagic() {
 	}
 
 	if (tile.eraseable || tile.name == "Empty Space") {
-		game.anims.animationStep = 0;
-		game.anims.animationOffset = 0;
-		game.player.state = "crouchMagic";
 		
 		switch (tile.name) {
 			case "Empty Space":
@@ -781,7 +855,14 @@ function playerCrouchMagic() {
 			case "Green Magic":
 				game.audio.gByeGreen.play();
 				break;
+			case "Warp Pocket":
+				game.audio.magicDud.play();
+				return;
 		}
+
+		game.anims.animationStep = 0;
+		game.anims.animationOffset = 0;
+		game.player.state = "crouchMagic";
 
 	} else {
 		game.audio.magicDud.play();
@@ -789,9 +870,17 @@ function playerCrouchMagic() {
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
+
+	if (getTileAbove().name == "Green Magic") {
+		game.player.state = "magicUpErase";
+		game.audio.gByeGreen.play();
+		return;
+	}
+
 	if (!getTileAbove().blocking && 
 		getTileBelow().name != "Green Magic" && 
 		getTileAbove().name != "Warp Pocket" &&
+		getTileAbove().name != "Exit Portal" &&
 		getTileAbove().name != "Entrance Portal" &&
 		getCurrentTile().name == "Empty Space") {
 		game.player.state = "magicUp";
@@ -956,7 +1045,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 40;
+			game.level = 1;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
