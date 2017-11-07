@@ -26,12 +26,14 @@ var GLOBALS = {
 	main: new Image(),
 	about: new Image(),
 	instructions: new Image(),
+	victory: new Image(),
 
 	imagesLoaded: false,
 
 	mainShowing: true,
 	aboutShowing: false,
 	instructionsShowing: false,
+	victoryShowing: false,
 }
 
 function updatePlayer(delta) {
@@ -391,7 +393,7 @@ function updatePlayer(delta) {
 						drawTile(3, Math.floor(game.anims.animationStep / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
 						break;
 					case "Eraseable Star-wall":
-						drawTile(3, Math.floor(game.anims.animationStep / 9), 9 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y + 1);
 						break;
 					case "Green Magic":
 						drawTile(3, Math.floor(game.anims.animationStep / 9), 10 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
@@ -670,6 +672,14 @@ var mapCodes = {
 		blocking: false,
 		eraseable: false
 	},
+	")": {
+		name: "Man",
+		spriteX: 10,
+		spriteY: 4,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
+	},
 	"/": {
 		name: "Fake Entrance Portal",
 		spriteX: 10,
@@ -683,6 +693,30 @@ var mapCodes = {
 		spriteX: 0,
 		spriteY: 6,
 		tileNum: 2,
+		blocking: false,
+		eraseable: false
+	},
+	"^": {
+		name: "Copyleft",
+		spriteX: 10,
+		spriteY: 5,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
+	},
+	"&": {
+		name: "Copyright",
+		spriteX: 10,
+		spriteY: 6,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
+	},
+	"V": {
+		name: "Victory Square",
+		spriteX: 10,
+		spriteY: 11,
+		tileNum: 1,
 		blocking: false,
 		eraseable: false
 	}
@@ -1081,8 +1115,11 @@ GLOBALS.main.onload = function() {
 						GLOBALS.instructions.src = 'assets/img/instructions.png';
 						GLOBALS.instructions.onload = function() {
 
-							ctx.drawImage(GLOBALS.main, 0, 0)
+							GLOBALS.victory.src = 'assets/img/victory.png';
+							GLOBALS.victory.onload = function() {
 
+								ctx.drawImage(GLOBALS.main, 0, 0)
+							}
 						}
 					}
 				}
@@ -1122,6 +1159,8 @@ window.addEventListener("mousemove", function(e) {
 		addPointerCSS();
 	} else if (GLOBALS.instructionsShowing) {
 		addPointerCSS();
+	} else if (GLOBALS.victoryShowing) {
+		addPointerCSS();
 	}
 
 });
@@ -1135,7 +1174,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 1;
+			game.level = 50;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
@@ -1161,18 +1200,15 @@ window.addEventListener("click", function(e) {
 		GLOBALS.mainShowing = true;
 		GLOBALS.instructionsShowing = false;
 		ctx.drawImage(GLOBALS.main, 0, 0);
+	} else if (GLOBALS.victoryShowing) {
+		GLOBALS.mainShowing = true;
+		GLOBALS.victoryShowing = false;
 	}
 
 	
 });
 
 window.addEventListener("keydown", function(e) {
-
-	// if (GLOBALS.instructionsShowing && GLOBALS.imagesLoaded) {
-	// 	GLOBALS.instructionsShowing = false;
-	// 	startLevel();
-	// 	return;
-	// }
 
 	switch(e.keyCode) {
 		case 27: // ESC
@@ -1224,7 +1260,9 @@ window.addEventListener("keydown", function(e) {
 			break;
 		case 82: // R (restart the level)
 		case 88: // X
-			startLevel();
+			if (!(GLOBALS.mainShowing || GLOBALS.instructionsShowing || GLOBALS.aboutShowing || GLOBALS.victoryShowing)) {
+				startLevel();
+			}
 			break;
 	}
 
@@ -1267,7 +1305,3 @@ window.addEventListener("keyup", function(e) {
 	}
 
 }, true);
-
-//})();
-
-
