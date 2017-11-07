@@ -432,6 +432,12 @@ function updatePlayer(delta) {
 
 		} else if (game.player.state == "lookingUp") {
 
+			if (game.keysDown.A) {
+				game.player.direction = "left";
+			} else if (game.keysDown.D) {
+			 	game.player.direction = "right";
+			}
+
 			drawHero(2, 3, game.player.pos.x, game.player.pos.y);
 
 		} else if (game.player.state == "magicUp") {
@@ -1150,7 +1156,9 @@ window.addEventListener("keydown", function(e) {
 			break;
 		case 38: // Up Arrow
 		case 87: // W
-			playerLookUp();
+			if (game.player.state == "standing") {
+				playerLookUp();
+			}
 			game.keysDown.W = true;
 			break;
 		case 82: // R (restart the level)
