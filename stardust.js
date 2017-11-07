@@ -74,6 +74,9 @@ function updatePlayer(delta) {
 			if (localStorage.getItem('level') < game.level) {
 				localStorage.setItem('level', game.level);	
 			}
+			if (game.level == 26) {
+				game.player.gender = 1;
+			}
 			startLevel();
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
@@ -330,13 +333,13 @@ function updatePlayer(delta) {
 
 				switch (tile.name) {
 					case "Blue Magic":
-						drawTile(3, Math.floor(game.anims.animationStep / 9), 4, game.player.pos.x + direction, game.player.pos.y);
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
 						break;
 					case "Eraseable Star-wall":
 						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y);
 						break;
 					case "Green Magic":
-						drawTile(3, Math.floor(game.anims.animationStep / 9), 10, game.player.pos.x + direction, game.player.pos.y);
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 10 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
 						break;
 				}
 
@@ -357,7 +360,7 @@ function updatePlayer(delta) {
 				game.anims.animationStep++;
 				game.anims.animationOffset = game.anims.animationStep / 20;
 				
-				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y);
+				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
 				drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.anims.animationStep == GLOBALS.magicDuration) {
@@ -365,7 +368,7 @@ function updatePlayer(delta) {
 					game.anims.animationOffset = 0;
 
 					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y][game.player.pos.x + direction] = "B";
+					game.levelState[game.player.pos.y][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
 					playerStand();
 					
 				}		
@@ -385,13 +388,13 @@ function updatePlayer(delta) {
 
 				switch (tile.name) {
 					case "Blue Magic":
-						drawTile(3, Math.floor(game.anims.animationStep / 9), 4, game.player.pos.x + direction, game.player.pos.y + 1);
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
 						break;
 					case "Eraseable Star-wall":
-						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y + 1);
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 9 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
 						break;
 					case "Green Magic":
-						drawTile(3, Math.floor(game.anims.animationStep / 9), 10, game.player.pos.x + direction, game.player.pos.y + 1);
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 10 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
 						break;
 				}
 
@@ -418,13 +421,13 @@ function updatePlayer(delta) {
 				game.anims.animationStep++;
 				game.anims.animationOffset = game.anims.animationStep / 20;
 				
-				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y + 1);
+				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
 				drawHero(7 + Math.floor(game.anims.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
 				if (game.anims.animationStep == GLOBALS.magicDuration) {
 
 					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "B";
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "P";
 					playerCrouch();
 					
 				}		
@@ -445,27 +448,28 @@ function updatePlayer(delta) {
 			game.anims.animationStep++;
 			game.anims.animationOffset = game.anims.animationStep / 40;
 
-			ctx.drawImage(GLOBALS.tiles3, 0, 400, 40, game.anims.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.anims.animationOffset) * 40, 40, game.anims.animationStep);
+			ctx.drawImage(GLOBALS.tiles3, 0, (10 + game.player.gender) * 40, 40, game.anims.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.anims.animationOffset) * 40, 40, game.anims.animationStep);
 			
 				if (game.player.direction == "right") {
-					drawTile(1, 10, 9, game.player.pos.x, game.player.pos.y - 1 - game.anims.animationOffset);
-					drawTile(1, 10, 10, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+					drawTile(1, 10, 9 - (2 * game.player.gender), game.player.pos.x, game.player.pos.y - 1 - game.anims.animationOffset);
+					drawTile(1, 10, 10 - (2 * game.player.gender), game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
 				} else {
+
 					ctx.translate((game.player.pos.x * 40)+40, (game.player.pos.y - 1 - game.anims.animationOffset) * 40);
 					ctx.scale(-1, 1);
-					ctx.drawImage(GLOBALS.tiles1, 10 * 40, 9 * 40, 40, 40, 0, 0, 40, 40);
+					ctx.drawImage(GLOBALS.tiles1, 10 * 40, (9 - (2 * game.player.gender)) * 40, 40, 40, 0, 0, 40, 40);
 					ctx.setTransform(1, 0, 0, 1, 0, 0)
 
 
 					ctx.translate((game.player.pos.x * 40)+40, (game.player.pos.y - game.anims.animationOffset) * 40);
 					ctx.scale(-1, 1);
-					ctx.drawImage(GLOBALS.tiles1, 10 * 40, 10 * 40, 40, 40, 0, 0, 40, 40);
+					ctx.drawImage(GLOBALS.tiles1, 10 * 40, (10 - (2 * game.player.gender)) * 40, 40, 40, 0, 0, 40, 40);
 					ctx.setTransform(1, 0, 0, 1, 0, 0)
 				}
 
 			if (game.anims.animationStep == GLOBALS.magicDuration) {
 
-				game.levelState[game.player.pos.y][game.player.pos.x] = "G";
+				game.levelState[game.player.pos.y][game.player.pos.x] = game.player.gender ? "R" : "G";
 				game.player.pos.y--;
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 				playerStand();
@@ -602,6 +606,14 @@ var mapCodes = {
 		blocking: true,
 		eraseable: true
 	},
+	"P": {
+		name: "Blue Magic",
+		spriteX: 0,
+		spriteY: 5,
+		tileNum: 3,
+		blocking: true,
+		eraseable: true
+	},
 	"G": {
 		name: "Green Magic",
 		spriteX: 0,
@@ -609,6 +621,14 @@ var mapCodes = {
 		tileNum: 3,
 		blocking: true,
 		eraseable: true,
+	},
+	"R": {
+		name: "Green Magic",
+		spriteX: 0,
+		spriteY: 11,
+		tileNum: 3,
+		blocking: true,
+		eraseable: true
 	},
 	"!": {
 		name: "Left Wall",
@@ -643,10 +663,20 @@ var mapCodes = {
 		eraseable: false,
 	},
 	"(": {
-
+		name: "Woman",
+		spriteX: 10,
+		spriteY: 3,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
 	},
-	")": {
-
+	"/": {
+		name: "Fake Entrance Portal",
+		spriteX: 10,
+		spriteY: 0,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
 	},
 	"%": {
 		name: "Teleporter",
@@ -735,6 +765,10 @@ function deathByCoals() {
 		drawMap(game.levelState)
 		drawHero(3 + i, 4, game.player.pos.x, game.player.pos.y);
 		i++;
+		if (i == 7) {
+			clearInterval(GLOBALS.animateDeath);
+			drawTile(1, 10, 11, game.player.pos.x, game.player.pos.y);
+		}
 	}, 150);
 
 	GLOBALS.returnToStart = setTimeout(function() {
@@ -763,6 +797,9 @@ function startLevel() {
 	game.audio.beginLevel.pause();
 	game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
 	game.audio.beginLevel.play();
+	if (game.level >= 26) {
+		game.player.gender = 1;
+	}
 	game.player.pos = drawMap(levels[game.level]); 
 	game.levelState = cloneArrayOfArrays(levels[game.level]);
 	game.player.state = "standing";
@@ -773,7 +810,12 @@ function startLevel() {
 }
 function playerRise() {
 	console.log("playerRise()");
-	game.player.state = "rising";
+	if (getTileAbove().blocking) {
+		game.levelState[game.player.pos.y][game.player.pos.x] = "0";
+		playerStand();
+	} else {
+		game.player.state = "rising";	
+	}
 }
 function playerFall() {
 	console.log("playerFall()");
@@ -832,7 +874,11 @@ function playerCrouch() {
 }
 function playerLookUp() {
 	console.log("playerLookUp()");
-	game.player.state = "lookingUp";
+	if (getTileAbove().name == "Elevator") {
+		game.player.state = "rising";
+	} else {
+		game.player.state = "lookingUp";
+	}
 }
 function playerMagicForward() {
 	console.log("playerMagicForward()")
@@ -955,9 +1001,23 @@ function drawTile(tn, tileX, tileY, desX, desY, sX, sY) {
 	if (tn == 3) {tileNum = GLOBALS.tiles3}
 	ctx.drawImage(tileNum, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 }
-function drawHero(tileX, tileY, desX, desY, sX, sY, special) {
+function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
+
+	if (game.player.gender == 1) {
+
+		var genderAdjustment = 37;
+		while (genderAdjustment--) {
+			tileX--;
+			if (tileX < 0) {
+				tileY--;
+				tileX = 15;
+			}
+		}
+
+	}
+
 	if (game.player.direction == "right") {
 		ctx.drawImage(GLOBALS.players, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 	} else {
@@ -1074,7 +1134,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 1;
+			game.level = 26;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
