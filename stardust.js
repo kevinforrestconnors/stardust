@@ -430,13 +430,32 @@ function updatePlayer(delta) {
 				}		
 			}
 
+		} else if (game.player.state == "lookingUp") {
+
+			drawHero(2, 3, game.player.pos.x, game.player.pos.y);
+
 		} else if (game.player.state == "magicUp") {
 
 			game.anims.animationStep++;
 			game.anims.animationOffset = game.anims.animationStep / 40;
 
 			ctx.drawImage(GLOBALS.tiles3, 0, 400, 40, game.anims.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.anims.animationOffset) * 40, 40, game.anims.animationStep);
-			drawHero(11 + Math.floor(game.anims.animationStep / 9), 3, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+			
+				if (game.player.direction == "right") {
+					drawTile(1, 10, 9, game.player.pos.x, game.player.pos.y - 1 - game.anims.animationOffset);
+					drawTile(1, 10, 10, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+				} else {
+					ctx.translate((game.player.pos.x * 40)+40, (game.player.pos.y - 1 - game.anims.animationOffset) * 40);
+					ctx.scale(-1, 1);
+					ctx.drawImage(GLOBALS.tiles1, 10 * 40, 9 * 40, 40, 40, 0, 0, 40, 40);
+					ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+
+					ctx.translate((game.player.pos.x * 40)+40, (game.player.pos.y - game.anims.animationOffset) * 40);
+					ctx.scale(-1, 1);
+					ctx.drawImage(GLOBALS.tiles1, 10 * 40, 10 * 40, 40, 40, 0, 0, 40, 40);
+					ctx.setTransform(1, 0, 0, 1, 0, 0)
+				}
 
 			if (game.anims.animationStep == GLOBALS.magicDuration) {
 
@@ -767,22 +786,22 @@ function playerTurn() {
 				if ((!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) || getTileLeft().name == "Left Wall") {
 					game.player.state = "walking";
 				} else {
-					game.player.state = "standing"
+					game.player.state = "standing";
 				}
 			} else {
-				game.player.direction = "right"
-				game.player.state = "prepareWalk"
+				game.player.direction = "right";
+				game.player.state = "prepareWalk";
 			}
  		} else {
  			if (game.keysDown.D) {
 				if ((!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) || getTileRight().name == "Right Wall") {
 					game.player.state = "walking";
 				} else {
-					game.player.state = "standing"
+					game.player.state = "standing";
 				}
 			} else {
-				game.player.direction = "left"
-				game.player.state = "prepareWalk"
+				game.player.direction = "left";
+				game.player.state = "prepareWalk";
 			}	
  		}
 	}	
@@ -803,7 +822,11 @@ function playerWalk() {
 }
 function playerCrouch() {
 	console.log("playerCrouch()");
-	game.player.state = "crouching"
+	game.player.state = "crouching";
+}
+function playerLookUp() {
+	console.log("playerLookUp()");
+	game.player.state = "lookingUp";
 }
 function playerMagicForward() {
 	console.log("playerMagicForward()")
@@ -926,7 +949,7 @@ function drawTile(tn, tileX, tileY, desX, desY, sX, sY) {
 	if (tn == 3) {tileNum = GLOBALS.tiles3}
 	ctx.drawImage(tileNum, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 }
-function drawHero(tileX, tileY, desX, desY, sX, sY) {
+function drawHero(tileX, tileY, desX, desY, sX, sY, special) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
 	if (game.player.direction == "right") {
@@ -1094,13 +1117,7 @@ window.addEventListener("keydown", function(e) {
 		case 13: // Enter
 			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
-
-				if (game.keysDown.W) {
-					playerMagicUp()
-				} else {
-					playerMagicForward();
-				}
-
+				playerMagicForward();
 			} else if (game.player.state == "crouching") {
 
 				if (game.player.direction == "left") {
@@ -1109,6 +1126,8 @@ window.addEventListener("keydown", function(e) {
 					playerCrouchMagic();
 				}
 
+			} else if (game.player.state == "lookingUp") {
+				playerMagicUp();
 			}
 			game.keysDown.space = true;
 			break;
@@ -1131,6 +1150,7 @@ window.addEventListener("keydown", function(e) {
 			break;
 		case 38: // Up Arrow
 		case 87: // W
+			playerLookUp();
 			game.keysDown.W = true;
 			break;
 		case 82: // R (restart the level)
@@ -1170,6 +1190,9 @@ window.addEventListener("keyup", function(e) {
 			break;
 		case 38: // Up Arrow
 		case 87: // W
+			if (game.player.state == "lookingUp") {
+				playerStand();
+			}
 			game.keysDown.W = false;
 			break;
 	}
