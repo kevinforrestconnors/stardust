@@ -453,7 +453,7 @@ function updatePlayer(delta) {
 				if (game.anims.animationStep == GLOBALS.magicDuration) {
 
 					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "P";
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
 					playerCrouch();
 					
 				}		
@@ -761,6 +761,7 @@ var game = {
 		warp: new Audio("assets/sound/215_Warp.wav"),
 	},
 	player: {
+		gender: 0,
 		pos: {
 			x: 0,
 			y: 0
