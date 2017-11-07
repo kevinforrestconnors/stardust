@@ -1198,7 +1198,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 50;
+			game.level = 1;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
