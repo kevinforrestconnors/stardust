@@ -74,6 +74,8 @@ function updatePlayer(delta) {
 		if (getCurrentTile().name == "Victory Square") {
 			GLOBALS.gameRunning = false;
 
+			game.audio.victory.play();
+
 			var xOffset = 0;
 			var yOffset = 0;
 
@@ -385,19 +387,48 @@ function updatePlayer(delta) {
 
 				game.anims.animationStep++;
 				game.anims.animationOffset = game.anims.animationStep / 20;
-				
-				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
-				drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
-				if (game.anims.animationStep == GLOBALS.magicDuration) {
-					game.anims.animationStep = 0;
-					game.anims.animationOffset = 0;
+				if (game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] == "6") { // Hot Coals
 
-					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
-					playerStand();
-					
-				}		
+					if (game.anims.animationStep < GLOBALS.magicDuration) {		
+
+						drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
+						drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
+
+					} else if (game.anims.animationStep >= GLOBALS.magicDuration) {
+
+						if (game.anims.animationStep == GLOBALS.magicDuration) {
+							game.audio.deathByCoals.play();
+						}
+
+						drawHero(5, 2, game.player.pos.x, game.player.pos.y);
+						drawTile(3, Math.floor((game.anims.animationStep - GLOBALS.magicDuration) / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
+
+						if (game.anims.animationStep == GLOBALS.magicDuration * 2) {
+
+							drawHero(10, 3, game.player.pos.x, game.player.pos.y);
+							game.levelState[game.player.pos.y][game.player.pos.x + direction] = "0";
+							playerCrouch();
+
+						}
+
+					}
+
+				} else {
+
+					drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
+					drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
+
+					if (game.anims.animationStep == GLOBALS.magicDuration) {
+						game.anims.animationStep = 0;
+						game.anims.animationOffset = 0;
+
+						drawHero(0, 0, game.player.pos.x, game.player.pos.y);
+						game.levelState[game.player.pos.y][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
+						playerStand();
+						
+					}		
+				}
 			}
 
 		} else if (game.player.state == "crouchMagic") {
@@ -446,17 +477,52 @@ function updatePlayer(delta) {
 
 				game.anims.animationStep++;
 				game.anims.animationOffset = game.anims.animationStep / 20;
-				
-				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
-				drawHero(7 + Math.floor(game.anims.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
-				if (game.anims.animationStep == GLOBALS.magicDuration) {
+				if (game.levelState[game.player.pos.y + 2][game.player.pos.x + direction] == "6") { // Hot Coals
 
-					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
-					playerCrouch();
-					
-				}		
+					if (game.anims.animationStep < GLOBALS.magicDuration) {		
+
+						drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+						drawHero(7 + Math.floor(game.anims.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
+
+					} else if (game.anims.animationStep >= GLOBALS.magicDuration) {
+
+						if (game.anims.animationStep == GLOBALS.magicDuration) {
+							game.audio.deathByCoals.play();
+						}
+
+						drawHero(7, 3, game.player.pos.x, game.player.pos.y);
+						
+						drawTile(3, Math.floor((game.anims.animationStep - GLOBALS.magicDuration) / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+
+						if (game.anims.animationStep == GLOBALS.magicDuration * 2) {
+
+							drawHero(10, 3, game.player.pos.x, game.player.pos.y);
+							game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
+							playerCrouch();
+
+						}
+
+					}
+
+
+				} else {
+
+					drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+					drawHero(7 + Math.floor(game.anims.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
+
+					if (game.anims.animationStep == GLOBALS.magicDuration) {
+
+						drawHero(10, 3, game.player.pos.x, game.player.pos.y);
+						game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
+						playerCrouch();
+
+					}		
+
+				}
+
+
+
 			}
 
 		} else if (game.player.state == "lookingUp") {
@@ -751,6 +817,7 @@ var game = {
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
+		victory: new Audio('assets/sound/109_Victory.wav'),
 		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav'),
 		deathByCoals: new Audio('assets/sound/206_Death_by_Coals.wav'),
 		magicBlue: new Audio('assets/sound/207_Magic_Blue.wav'),
@@ -1199,7 +1266,7 @@ window.addEventListener("click", function(e) {
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
 			GLOBALS.mainShowing = false;
-			game.level = 1;
+			game.level = 30;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
 			GLOBALS.mainShowing = false;
