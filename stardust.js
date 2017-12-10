@@ -565,7 +565,25 @@ function updatePlayer(delta) {
 				game.player.pos.y--;
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 				playerStand();
-				
+
+				if (getCurrentTile().name == "Teleporter") {
+
+						var pX = game.player.pos.x;
+						var pY = game.player.pos.y;
+
+						var nextY = pY + 1;
+
+						while (game.levelState[nextY][pX] != "%") {
+							nextY++;
+							if (nextY >= 12) {
+								nextY = 0;
+							}
+						}
+
+						game.player.pos.y = nextY;
+						playerStand();
+							
+				}
 			}		
 		} else if (game.player.state == "magicUpErase") {
 
